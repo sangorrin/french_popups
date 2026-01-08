@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>French Popups</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🇫🇷 French Popups</h1>
+    </header>
+
+    <main>
+      <div class="setting-group">
+        <label for="language-select">Target Language</label>
+        <select id="language-select">
+          <option value="eng">English</option>
+          <option value="spa">Español (Spanish)</option>
+          <option value="deu">Deutsch (German)</option>
+          <option value="ita">Italiano (Italian)</option>
+          <option value="por">Português (Portuguese)</option>
+          <option value="rus">Русский (Russian)</option>
+          <option value="nld">Nederlands (Dutch)</option>
+          <option value="pol">Polski (Polish)</option>
+          <option value="ces">Čeština (Czech)</option>
+          <option value="cat">Català (Catalan)</option>
+          <option value="swe">Svenska (Swedish)</option>
+          <option value="dan">Dansk (Danish)</option>
+          <option value="ell">Ελληνικά (Greek)</option>
+          <option value="fin">Suomi (Finnish)</option>
+          <option value="jpn">日本語 (Japanese)</option>
+          <option value="zho">中文 (Chinese)</option>
+          <option value="bul">Български (Bulgarian)</option>
+          <option value="gle">Gaeilge (Irish)</option>
+          <option value="ind">Bahasa Indonesia</option>
+          <option value="lat">Latina (Latin)</option>
+          <option value="lit">Lietuvių (Lithuanian)</option>
+          <option value="nor">Norsk (Norwegian)</option>
+          <option value="tur">Türkçe (Turkish)</option>
+        </select>
+      </div>
+
+      <div class="status">
+        <div class="status-indicator">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="status-text">Loading...</span>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button id="force-activate-btn" class="force-activate-btn" title="Manually activate French word recognition on this page">
+          🔍 Force Activate
+        </button>
+      </div>
+
+      <div class="info">
+        <p>Hover over French words to see translations</p>
+      </div>
+    </main>
+
+    <footer>
+      <p class="version">v1.0.0 • Offline dictionaries by WikDict</p>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
