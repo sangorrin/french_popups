@@ -32,7 +32,8 @@ def extract_conjugations(jsonl_path, output_u8, output_idx):
         for line in f:
             line_count += 1
             if line_count % 100000 == 0:
-                print(f"Processed {line_count} lines, found {verb_count} verbs, {form_count} forms...")
+                print(f"Processed {line_count} lines, "
+                      f"found {verb_count} verbs, {form_count} forms...")
 
             try:
                 entry = json.loads(line)
@@ -126,11 +127,11 @@ def extract_conjugations(jsonl_path, output_u8, output_idx):
         if current_word is not None:
             idx_file.write(f"{current_word}\t{word_start_offset}\n")
 
-    print(f"\nDone! Created:")
+    print("\nDone! Created:")
     print(f"  - {output_u8} ({form_count} entries)")
     print(f"  - {output_idx} (index file)")
 
-def main():
+def main(): # pylint: disable=missing-function-docstring
     # Set up paths
     script_dir = Path(__file__).parent
     jsonl_path = script_dir / 'fr-extract.jsonl'
