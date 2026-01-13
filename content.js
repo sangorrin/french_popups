@@ -14,31 +14,20 @@ let mouseMoveTimer = null;
  * Initialize extension
  */
 async function init() {
-  console.log('[French Popups] Starting initialization...');
-  console.log('[French Popups] Dictionary object available:', typeof dictionary);
-
   try {
     // Load target language from storage
     const result = await chrome.storage.local.get(['targetLanguage']);
     const targetLang = result.targetLanguage || 'eng';
-    console.log('[French Popups] Target language:', targetLang);
 
     await dictionary.init(targetLang);
-    console.log('[French Popups] Dictionary initialized');
 
     // Detect if page is French
     await detectFrenchPage();
-    console.log('[French Popups] French detection complete:', isFrenchPage);
 
     if (isFrenchPage) {
       isActive = true;
       attachHoverListeners();
-      console.log('[French Popups] Hover listeners attached');
-    } else {
-      console.log('[French Popups] Page not detected as French, listeners NOT attached');
     }
-
-    console.log(`[French Popups] Initialized - Active: ${isActive}, French: ${isFrenchPage}`);
   } catch (error) {
     console.error('[French Popups] Initialization error:', error);
   }
@@ -52,7 +41,6 @@ async function detectFrenchPage() {
   const htmlLang = document.documentElement.lang;
   if (htmlLang && htmlLang.toLowerCase().startsWith('fr')) {
     isFrenchPage = true;
-    console.log('[French Popups] French detected via HTML lang attribute');
     return;
   }
 
@@ -63,7 +51,6 @@ async function detectFrenchPage() {
 
   if (ratio > 0.01) { // >1% French characters
     isFrenchPage = true;
-    console.log(`[French Popups] French detected via character analysis (${(ratio * 100).toFixed(2)}%)`);
     return;
   }
 
@@ -80,11 +67,9 @@ async function detectFrenchPage() {
   const matchRatio = matchCount / words.length;
   if (matchRatio > 0.4) { // >40% words match dictionary
     isFrenchPage = true;
-    console.log(`[French Popups] French detected via dictionary sampling (${matchCount}/${words.length})`);
     return;
   }
 
-  console.log('[French Popups] No French detected');
 }
 
 /**
@@ -105,7 +90,6 @@ function extractSampleWords(text, count) {
  * Based on translate_onhover's robust implementation
  */
 function attachHoverListeners() {
-  console.log('[French Popups] Attaching hover listeners');
 
   // Remove popup on scroll
   document.addEventListener('scroll', () => {
@@ -161,12 +145,10 @@ function hasMouseReallyMoved(e, lastX, lastY) {
  * Handle mouse stop event - detect word and show popup
  */
 async function handleMouseStop(e) {
-  console.log('[French Popups] Mouse stopped, detecting word...');
 
   const hitElement = document.elementFromPoint(e.clientX, e.clientY);
 
   if (!hitElement) {
-    console.log('[French Popups] No element at point');
     return;
   }
 
@@ -174,7 +156,6 @@ async function handleMouseStop(e) {
   if (hitElement.nodeName === 'INPUT' ||
       hitElement.nodeName === 'TEXTAREA' ||
       hitElement.isContentEditable) {
-    console.log('[French Popups] Skipping editable element');
     return;
   }
 
@@ -182,7 +163,6 @@ async function handleMouseStop(e) {
   let parent = hitElement.parentElement;
   while (parent) {
     if (parent.isContentEditable) {
-      console.log('[French Popups] Inside editable parent');
       return;
     }
     parent = parent.parentElement;
@@ -190,10 +170,8 @@ async function handleMouseStop(e) {
 
   // Get word at point
   const wordData = getHitWord(e);
-  console.log('[French Popups] Detected word data:', wordData);
 
   if (wordData && wordData.word && wordData.word.length >= 2) {
-    console.log('[French Popups] Showing popup for:', wordData.word);
     await showPopup(wordData.word, wordData.followingText, e.clientX, e.clientY);
   }
 }
@@ -226,7 +204,6 @@ function getHitWord(e) {
   }
 
   if (textNodes.length === 0) {
-    console.log('[French Popups] No text nodes found');
     return null;
   }
 
@@ -279,17 +256,14 @@ function getExactWordAndContext(textNodes, e, originalHitElement) {
   const hitTextNode = getExactTextNode(e);
 
   if (!hitTextNode || hitTextNode.nodeType !== Node.TEXT_NODE) {
-    console.log('[French Popups] Hit between lines or no text node');
     return null;
   }
 
-  console.log('[French Popups] Hit text node:', hitTextNode.textContent);
 
   // Get the minimal text segment containing the cursor
   const minimalNode = getMinimalTextNode(hitTextNode, e, originalHitElement);
 
   if (!minimalNode) {
-    console.log('[French Popups] Could not narrow down text');
     return null;
   }
 
@@ -507,14 +481,11 @@ function getFollowingText(currentNode, allTextNodes) {
  * Show translation popup
  */
 async function showPopup(word, followingText, x, y) {
-  console.log('[French Popups] showPopup called for:', word, 'with following:', followingText, 'at', x, y);
   hidePopup();
 
   const entry = await dictionary.lookup(word, followingText);
-  console.log('[French Popups] Dictionary lookup result:', entry);
 
   if (!entry) {
-    console.log('[French Popups] No entry found, aborting popup');
     return;
   }
 
@@ -540,7 +511,6 @@ async function showPopup(word, followingText, x, y) {
   `;
 
   document.body.appendChild(currentPopup);
-  console.log('[French Popups] Popup appended to body');
 
   // Position popup
   const rect = currentPopup.getBoundingClientRect();
@@ -559,7 +529,6 @@ async function showPopup(word, followingText, x, y) {
   currentPopup.style.left = `${left + window.scrollX}px`;
   currentPopup.style.top = `${top + window.scrollY}px`;
 
-  console.log('[French Popups] Popup positioned at:', currentPopup.style.left, currentPopup.style.top);
 
   // Keep popup visible on hover
   currentPopup.addEventListener('mouseenter', () => {
@@ -613,15 +582,12 @@ function hidePopup() {
  * Force activate the extension on the current page
  */
 function forceActivate() {
-  console.log('[French Popups] Force activation requested');
 
   if (!isActive) {
     isActive = true;
     isFrenchPage = true; // Mark as French page
     attachHoverListeners();
-    console.log('[French Popups] Extension force-activated');
   } else {
-    console.log('[French Popups] Already active');
   }
 }
 
