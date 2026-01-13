@@ -1,1 +1,4 @@
 .DS_Store
+data/*.u8
+data/*.idx
+data/*.jsonl
