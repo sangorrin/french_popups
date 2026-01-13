@@ -412,8 +412,10 @@ class Dictionary {
       return null;
     }
 
-    // Normalize the word for lookup (NFC normalization + lowercase)
-    const normalizedWord = word.normalize('NFC').toLowerCase();
+    // Normalize the word for lookup (NFC normalization + lowercase + apostrophe normalization)
+    // Convert straight apostrophes (') to curly apostrophes (') to match dictionary format
+    let normalizedWord = word.normalize('NFC').toLowerCase();
+    normalizedWord = normalizedWord.replace(/'/g, '\u2019');  // U+0027 -> U+2019
     console.log('[Dict] Normalized word:', normalizedWord);
 
     // If we have following text, try to find multi-word expressions first
@@ -522,6 +524,23 @@ class Dictionary {
           return infinitiveEntry;
         } else {
           console.log('[Dict] Could not find infinitive in dictionary');
+        }
+      }
+    }
+
+    // If still not found, try removing contractions
+    if (!indexEntry) {
+      const contractionResult = this.tryRemoveContraction(normalizedWord);
+      if (contractionResult) {
+        console.log('[Dict] Trying after removing contraction:', contractionResult.prefix, '+', contractionResult.word);
+
+        // Try lookup with the de-contracted word
+        const decontractedEntry = await this.lookup(contractionResult.word, followingText);
+        if (decontractedEntry) {
+          // Add note about the contraction
+          decontractedEntry.contractionPrefix = contractionResult.prefix;
+          decontractedEntry.originalSearched = normalizedWord;
+          return decontractedEntry;
         }
       }
     }
@@ -699,6 +718,40 @@ class Dictionary {
     // If no verb entry found, return the first entry
     const entry = await this.fetchEntry(indexEntries[0].offset, indexEntries[0].length);
     return entry;
+  }
+
+  /**
+   * Try to remove French contractions from the beginning of a word
+   * Returns {prefix, word} if contraction found, null otherwise
+   *
+   * French contractions:
+   * l' = le/la (the) → l'amour, l'arrêt
+   * d' = de (of/from) → d'ailleurs, d'abord
+   * c' = ce (this/it) → c'est
+   * j' = je (I) → j'aime
+   * m' = me (me) → m'aide
+   * t' = te (you) → t'aime
+   * n' = ne (negation) → n'est
+   * s' = se (reflexive) → s'appelle
+   * qu' = que (that/what) → qu'il
+   */
+  tryRemoveContraction(word) {
+    if (!word || word.length < 3) {
+      return null;
+    }
+
+    const contractions = ['qu\u2019', 'l\u2019', 'd\u2019', 'c\u2019', 'j\u2019', 'm\u2019', 't\u2019', 'n\u2019', 's\u2019'];
+
+    for (const contraction of contractions) {
+      if (word.startsWith(contraction)) {
+        return {
+          prefix: contraction,
+          word: word.substring(contraction.length)
+        };
+      }
+    }
+
+    return null;
   }
 
   /**

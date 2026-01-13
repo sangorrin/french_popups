@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test French Contractions</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.8;
+            font-size: 18px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            background: #ecf0f1;
+            padding: 10px;
+            border-left: 4px solid #3498db;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-word {
+            font-weight: 600;
+            color: #7c3aed;
+        }
+        .instruction {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .note {
+            color: #64748b;
+            font-style: italic;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .example {
+            padding: 12px;
+            background: #f8f9fa;
+            border-left: 3px solid #7c3aed;
+            margin: 10px 0;
+        }
+        .category {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            margin-right: 8px;
+            margin-bottom: 5px;
+        }
+        .no-contraction {
+            background: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test French Contractions</h1>
+    <p>Hover over the <span class="test-word">purple words</span> to test contraction removal and lookup.</p>
+
+    <div class="instruction">
+        <strong>How contractions work:</strong><br>
+        French contracts certain words before vowels. When these appear, the extension should:
+        <ol style="margin-top: 10px;">
+            <li>First try to find the word WITH the contraction (some expressions start with l', d', etc.)</li>
+            <li>If not found, remove the contraction and try again</li>
+            <li>Display the definition of the de-contracted word</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>1. l' = le/la (the)</h2>
+
+        <div class="example">
+            <span class="category">With contraction</span><br>
+            Je suis à <span class="test-word">l'arrêt</span> de bus maintenant.<br>
+            <span class="note">Should find "arrêt" (stop, halt)</span>
+        </div>
+
+        <div class="example">
+            <span class="category">With contraction</span><br>
+            <span class="test-word">L'école</span> commence à 8 heures.<br>
+            <span class="note">Should find "école" (school)</span>
+        </div>
+
+        <div class="example">
+            <span class="category">With contraction</span><br>
+            C'est <span class="test-word">l'heure</span> de partir.<br>
+            <span class="note">Should find "heure" (hour, time)</span>
+        </div>
+
+        <div class="example">
+            <span class="category">With contraction</span><br>
+            <span class="test-word">L'homme</span> est mortel.<br>
+            <span class="note">Should find "homme" (man)</span>
+        </div>
+
+        <div class="example">
+            <span class="category">With contraction</span><br>
+            Regarde <span class="test-word">l'arbre</span> là-bas.<br>
+            <span class="note">Should find "arbre" (tree)</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. d' = de (of/from)</h2>
+
+        <div class="example">
+            <span class="category">With contraction</span><br>
+            Un verre <span class="test-word">d'eau</span>, s'il vous plaît.<br>
+            <span class="note">Should find "eau" (water)</span>
+        </div>
+
+        <div class="example">
+            <span class="category">With contraction</span><br>
+            C'est une question <span class="test-word">d'honneur</span>.<br>
+            <span class="note">Should find "honneur" (honor)</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Multi-word expressions with contractions</h2>
+
+        <div class="example">
+            <span class="category">With contraction + multi-word</span><br>
+            Je suis à <span class="test-word">l'arrêt de bus</span> maintenant.<br>
+            <span class="note">Should find "arrêt de bus" (bus stop) - 3 words including "de bus"</span>
+        </div>
+
+        <div class="example">
+            <span class="category">With contraction + multi-word</span><br>
+            Il a eu <span class="test-word">l'arrêt cardiaque</span>.<br>
+            <span class="note">Should find "arrêt cardiaque" (cardiac arrest) - 2 words</span>
+        </div>
+
+        <div class="example">
+            <span class="category">With contraction + multi-word</span><br>
+            C'est <span class="test-word">l'arrêt d’urgence</span>.<br>
+            <span class="note">Should find "arrêt d'urgence" (emergency stop) - 2 words</span>
+        </div>
+
+        <div class="example">
+            <span class="category">With contraction + multi-word</span><br>
+            <span class="test-word">L'aide au démarrage en côte</span> est utile.<br>
+            <span class="note">Should find "aide au démarrage en côte" (start-up assistance) - hover on "aide"</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Other contractions</h2>
+
+        <div class="example">
+            <span class="category">With contraction</span><br>
+            <span class="test-word">C'est</span> vrai.<br>
+            <span class="note">Should find "est" (is) - c' = ce</span>
+        </div>
+
+        <div class="example">
+            <span class="category">With contraction</span><br>
+            <span class="test-word">J'aime</span> le chocolat.<br>
+            <span class="note">Should find "aime" or "aimer" (to love) - j' = je</span>
+        </div>
+
+        <div class="example">
+            <span class="category">With contraction</span><br>
+            Il <span class="test-word">s'appelle</span> Jean.<br>
+            <span class="note">Should find "appelle" or "appeler" (to call) - s' = se</span>
+        </div>
+
+        <div class="example">
+            <span class="category">With contraction</span><br>
+            Je <span class="test-word">n'ai</span> pas d'argent.<br>
+            <span class="note">Should find "ai" or "avoir" (to have) - n' = ne</span>
+        </div>
+
+        <div class="example">
+            <span class="category">With contraction</span><br>
+            <span class="test-word">Qu'est</span>-ce que c'est?<br>
+            <span class="note">Should find "est" (is) - qu' = que</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Words that START with contraction-like prefixes (should NOT be de-contracted)</h2>
+        <p class="note">These exist in the dictionary as-is and should be found directly:</p>
+
+        <div class="example">
+            <span class="category no-contraction">EXISTS in dictionary</span><br>
+            <span class="test-word">l'un</span> après <span class="test-word">l'autre</span><br>
+            <span class="note">"l'un" and "l'autre" both exist in dictionary as complete entries</span>
+        </div>
+
+        <div class="example">
+            <span class="category no-contraction">EXISTS in dictionary</span><br>
+            <span class="test-word">l'échapper belle</span><br>
+            <span class="note">"l'échapper belle" is a full expression in the dictionary</span>
+        </div>
+
+        <div class="example">
+            <span class="category no-contraction">EXISTS in dictionary</span><br>
+            <span class="test-word">L'union fait la force</span><br>
+            <span class="note">"L'union fait la force" is a full expression - hover on "L'union"</span>
+        </div>
+
+        <div class="example">
+            <span class="category no-contraction">EXISTS in dictionary</span><br>
+            C'est <span class="test-word">l'un</span> de mes amis.<br>
+            <span class="note">Should find "l'un" (one) - NOT "un"</span>
+        </div>
+
+        <div class="example">
+            <span class="category no-contraction">EXISTS in dictionary</span><br>
+            Je viens <span class="test-word">d'ailleurs</span>.<br>
+            <span class="note">Should find "d'ailleurs" (anyway, besides, moreover) - complete entry</span>
+        </div>
+
+        <div class="example">
+            <span class="category no-contraction">EXISTS in dictionary</span><br>
+            <span class="test-word">D'abord</span>, il faut comprendre.<br>
+            <span class="note">Should find "d'abord" (first, at first, first of all) - complete entry</span>
+        </div>
+
+    </div>
+
+    <div class="instruction">
+        <strong>Testing Instructions:</strong>
+        <ul style="margin-top: 10px;">
+            <li>Reload the extension in Chrome</li>
+            <li>Hover over each purple word</li>
+            <li>Green labels: Should find word after removing contraction</li>
+            <li>Red labels: Should find exact match in dictionary (no de-contraction)</li>
+            <li>For multi-word expressions: Should detect the full expression after removing contraction</li>
+            <li>Verify the definition matches the expected word</li>
+        </ul>
+    </div>
+</body>
+</html>
