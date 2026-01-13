@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test French Plurals</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.8;
+            font-size: 18px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            background: #ecf0f1;
+            padding: 10px;
+            border-left: 4px solid #3498db;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-word {
+            font-weight: 600;
+            color: #7c3aed;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        li:last-child {
+            border-bottom: none;
+        }
+        .instruction {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .note {
+            color: #64748b;
+            font-style: italic;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test French Plurals</h1>
+    <p>Hover over the <span class="test-word">purple words</span> to test plural detection and transformation.</p>
+
+    <div class="test-section">
+        <h2>1. Basic Plurals (-s)</h2>
+        <ul>
+            <li>Singular: <span class="test-word">chat</span> | Plural: <span class="test-word">chats</span></li>
+            <li>Singular: <span class="test-word">maison</span> | Plural: <span class="test-word">maisons</span></li>
+            <li>Singular: <span class="test-word">livre</span> | Plural: <span class="test-word">livres</span></li>
+            <li>Singular: <span class="test-word">terme</span> | Plural: <span class="test-word">termes</span></li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Plurals ending in -aux</h2>
+        <ul>
+            <li>Singular: <span class="test-word">cheval</span> | Plural: <span class="test-word">chevaux</span></li>
+            <li>Singular: <span class="test-word">animal</span> | Plural: <span class="test-word">animaux</span></li>
+            <li>Singular: <span class="test-word">journal</span> | Plural: <span class="test-word">journaux</span></li>
+            <li>Singular: <span class="test-word">travail</span> | Plural: <span class="test-word">travaux</span></li>
+            <li>Singular: <span class="test-word">noyau</span> | Plural: <span class="test-word">noyaux</span></li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Plurals ending in -eaux</h2>
+        <ul>
+            <li>Singular: <span class="test-word">bateau</span> | Plural: <span class="test-word">bateaux</span></li>
+            <li>Singular: <span class="test-word">château</span> | Plural: <span class="test-word">châteaux</span></li>
+            <li>Singular: <span class="test-word">cadeau</span> | Plural: <span class="test-word">cadeaux</span></li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Plurals ending in -eux</h2>
+        <ul>
+            <li>Singular: <span class="test-word">cheveu</span> | Plural: <span class="test-word">cheveux</span></li>
+            <li>Singular: <span class="test-word">feu</span> | Plural: <span class="test-word">feux</span></li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Plurals ending in -oux</h2>
+        <ul>
+            <li>Singular: <span class="test-word">genou</span> | Plural: <span class="test-word">genoux</span></li>
+            <li>Singular: <span class="test-word">chou</span> | Plural: <span class="test-word">choux</span></li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>6. Complete Sentences</h2>
+        <p>
+            Les <span class="test-word">chevaux</span> sont des <span class="test-word">animaux</span> très intelligents.
+            Les <span class="test-word">journaux</span> sont sur la table.
+            Les <span class="test-word">bateaux</span> naviguaient sur la mer avec leurs <span class="test-word">voiles</span>.
+        </p>
+        <p>
+            Les <span class="test-word">châteaux</span> de la Loire sont magnifiques.
+            Les <span class="test-word">genoux</span> me font mal après la course.
+            J'ai acheté des <span class="test-word">cadeaux</span> pour mes amis.
+        </p>
+    </div>
+
+    <div class="test-section">
+        <h2>7. Words that should NOT transform</h2>
+        <p class="note">These words exist as-is in the dictionary (no plural heuristics should apply):</p>
+        <ul>
+            <li><span class="test-word">depuis</span> (preposition, not a plural)</li>
+            <li><span class="test-word">vous</span> (pronoun, not a plural)</li>
+            <li><span class="test-word">toujours</span> (adverb, not a plural)</li>
+        </ul>
+    </div>
+
+    <div class="instruction">
+        <strong>Instructions:</strong>
+        <ul style="margin-top: 10px;">
+            <li>Reload the extension in Chrome</li>
+            <li>Hover over each purple word</li>
+            <li>For plurals: verify the inflection note shows "plural of..." with the singular form</li>
+            <li>Verify the definition comes from the singular form</li>
+            <li>For non-plurals: verify the exact word definition is shown</li>
+        </ul>
+    </div>
+</body>
+</html>

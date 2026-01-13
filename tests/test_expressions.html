@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Multi-Word French Expressions - French Popup Extension</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      line-height: 2.5;
+      background: #f5f5f5;
+    }
+
+    h1 {
+      color: #2c3e50;
+      border-bottom: 3px solid #3498db;
+      padding-bottom: 10px;
+    }
+
+    h2 {
+      color: #34495e;
+      margin-top: 30px;
+      background: #ecf0f1;
+      padding: 10px;
+      border-left: 4px solid #3498db;
+    }
+
+    .test-section {
+      background: white;
+      padding: 20px;
+      margin: 15px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .instruction {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 5px;
+    }
+
+    .test-item {
+      margin: 20px 0;
+      padding: 15px;
+      background: #fafafa;
+      border-left: 3px solid #ddd;
+    }
+
+    .test-text {
+      font-size: 1.1em;
+      margin: 10px 0;
+      padding: 10px;
+      background: white;
+      border-radius: 4px;
+    }
+
+    .expected {
+      color: #666;
+      font-size: 0.9em;
+      font-style: italic;
+      margin-top: 8px;
+      padding: 8px;
+      background: #f0f0f0;
+      border-radius: 3px;
+    }
+
+    .category {
+      display: inline-block;
+      background: #6c757d;
+      color: white;
+      padding: 3px 10px;
+      border-radius: 3px;
+      font-size: 0.85em;
+      margin-right: 8px;
+      margin-bottom: 5px;
+    }
+
+    .multi-word-cat {
+      background: #4caf50;
+    }
+
+    .single-word-cat {
+      background: #ff9800;
+    }
+
+    .no-lookup-cat {
+      background: #f44336;
+    }
+
+    .arrow {
+      color: #e91e63;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    code {
+      background: #e8f5e9;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      color: #2e7d32;
+    }
+
+    .highlight-instruction {
+      background: #e3f2fd;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      border-left: 3px solid #2196f3;
+    }
+  </style>
+</head>
+<body>
+  <h1>🇫🇷 Test Multi-Word French Expressions</h1>
+
+  <div class="instruction">
+    <strong>Instructions:</strong> Hover over the words indicated by arrows (<span class="arrow">→</span>) to test the extension.
+    <br>No span tags are used, so the text flow is completely natural.
+    <br>This tests the extension in real-world conditions.
+  </div>
+
+  <h2>Test Category 1: "arrêt" Multi-Word Expressions</h2>
+  <div class="test-section">
+    <div class="test-item">
+      <span class="category multi-word-cat">Multi-word expected</span>
+      <div class="test-text">
+        <span class="arrow">→</span> Je suis à l'arrêt de bus maintenant.
+      </div>
+      <div class="expected">
+        <strong>Hover "arrêt"</strong> → Should show: <code>arrêt de bus</code> (3 words)
+      </div>
+    </div>
+
+    <div class="test-item">
+      <span class="category multi-word-cat">Multi-word expected</span>
+      <div class="test-text">
+        <span class="arrow">→</span> Il a fait un arrêt de volée spectaculaire.
+      </div>
+      <div class="expected">
+        <strong>Hover "arrêt"</strong> → Should show: <code>arrêt de volée</code> (3 words)
+      </div>
+    </div>
+
+    <div class="test-item">
+      <span class="category multi-word-cat">Multi-word expected</span>
+      <div class="test-text">
+        <span class="arrow">→</span> C'est un arrêt cardiaque très grave.
+      </div>
+      <div class="expected">
+        <strong>Hover "arrêt"</strong> → Should show: <code>arrêt cardiaque</code> (2 words)
+      </div>
+    </div>
+
+    <div class="test-item">
+      <span class="category multi-word-cat">Multi-word expected</span>
+      <div class="test-text">
+        <span class="arrow">→</span> L'arrêt d'urgence a été activé immédiatement.
+      </div>
+      <div class="expected">
+        <strong>Hover "arrêt"</strong> → Should show: <code>arrêt d'urgence</code> (2 words)
+      </div>
+    </div>
+
+    <div class="test-item">
+      <span class="category multi-word-cat">Multi-word expected</span>
+      <div class="test-text">
+        <span class="arrow">→</span> Il est en arrêt maladie cette semaine.
+      </div>
+      <div class="expected">
+        <strong>Hover "arrêt"</strong> → Should show: <code>arrêt maladie</code> (2 words)
+      </div>
+    </div>
+
+    <div class="test-item">
+      <span class="category multi-word-cat">Multi-word expected</span>
+      <div class="test-text">
+        <span class="arrow">→</span> C'est un arrêt de mort programmé.
+      </div>
+      <div class="expected">
+        <strong>Hover "arrêt"</strong> → Should show: <code>arrêt de mort</code> (3 words)
+      </div>
+    </div>
+
+    <div class="test-item">
+      <span class="category single-word-cat">Single-word expected</span>
+      <div class="test-text">
+        <span class="arrow">→</span> Il y a un arrêt ici.
+      </div>
+      <div class="expected">
+        <strong>Hover "arrêt"</strong> → Should show: <code>arrêt</code> (single word, no multi-word match)
+      </div>
+    </div>
+
+    <div class="test-item">
+      <span class="category no-lookup-cat">No lookup expected</span>
+      <div class="test-text">
+        Je suis à l'arrêt de <span class="arrow">→</span> bus maintenant.
+      </div>
+      <div class="expected">
+        <strong>Hover "bus"</strong> → Should NOT show popup for multi-word (not first word)
+      </div>
+    </div>
+  </div>
+
+  <h2>Test Category 2: "arrête" Expressions</h2>
+  <div class="test-section">
+    <div class="test-item">
+      <span class="category multi-word-cat">Multi-word expected</span>
+      <div class="test-text">
+        <span class="arrow">→</span> Arrête tes salades maintenant!
+      </div>
+      <div class="expected">
+        <strong>Hover "Arrête"</strong> → Should show: <code>arrête tes salades</code> (3 words)
+      </div>
+    </div>
+
+    <div class="test-item">
+      <span class="category multi-word-cat">Multi-word expected</span>
+      <div class="test-text">
+        <span class="arrow">→</span> Arrête ton charre immédiatement!
+      </div>
+      <div class="expected">
+        <strong>Hover "Arrête"</strong> → Should show: <code>arrête ton charre</code> (3 words)
+      </div>
+    </div>
+
+    <div class="test-item">
+      <span class="category single-word-cat">Single-word expected</span>
+      <div class="test-text">
+        <span class="arrow">→</span> Arrête maintenant!
+      </div>
+      <div class="expected">
+        <strong>Hover "Arrête"</strong> → Should show: <code>arrête</code> (single word)
+      </div>
+    </div>
+
+    <div class="test-item">
+      <span class="category no-lookup-cat">No lookup expected</span>
+      <div class="test-text">
+        Arrête tes <span class="arrow">→</span> salades maintenant!
+      </div>
+      <div class="expected">
+        <strong>Hover "salades"</strong> → Should NOT show multi-word popup (not first word)
+      </div>
+    </div>
+  </div>
+
+  <h2>Test Category 3: Complex 4-Word Expressions</h2>
+  <div class="test-section">
+    <div class="test-item">
+      <span class="category multi-word-cat">Multi-word expected (4 words)</span>
+      <div class="test-text">
+        <span class="arrow">→</span> L'arrêt d'urgence du réacteur a été déclenché.
+      </div>
+      <div class="expected">
+        <strong>Hover "arrêt"</strong> → Should show: <code>arrêt d'urgence du réacteur</code> (4 words) or fall back to <code>arrêt d'urgence</code> (2 words)
+      </div>
+    </div>
+
+    <div class="test-item">
+      <span class="category multi-word-cat">Multi-word expected (4 words)</span>
+      <div class="test-text">
+        <span class="arrow">→</span> C'est un arrêt automatique du réacteur standard.
+      </div>
+      <div class="expected">
+        <strong>Hover "arrêt"</strong> → Should show: <code>arrêt automatique du réacteur</code> (4 words)
+      </div>
+    </div>
+
+    <div class="test-item">
+      <span class="category multi-word-cat">Multi-word expected</span>
+      <div class="test-text">
+        <span class="arrow">→</span> Il y a un arrêt de pénalité dans le match.
+      </div>
+      <div class="expected">
+        <strong>Hover "arrêt"</strong> → Should show: <code>arrêt de pénalité</code> (3 words)
+      </div>
+    </div>
+  </div>
+
+  <h2>Test Category 4: Real-World Paragraph Test</h2>
+  <div class="test-section">
+    <div class="test-item">
+      <div class="test-text" style="line-height: 2.2;">
+        Quand je suis arrivé à l'arrêt de bus, j'ai vu qu'il y avait un arrêt d'urgence du réacteur à la centrale nucléaire.
+        C'était un arrêt à froid, heureusement. Le conducteur a dû faire un arrêt cardiaque de surprise!
+        En attendant, j'ai pensé: "Arrête tes salades!" à propos de toute cette situation absurde.
+      </div>
+      <div class="expected">
+        <strong>Test each occurrence of "arrêt" or "Arrête":</strong>
+        <ul style="margin: 5px 0; padding-left: 20px;">
+          <li>"arrêt" (1st) → <code>arrêt de bus</code></li>
+          <li>"arrêt" (2nd) → <code>arrêt d'urgence du réacteur</code> or <code>arrêt d'urgence</code></li>
+          <li>"arrêt" (3rd) → <code>arrêt à froid</code></li>
+          <li>"arrêt" (4th) → <code>arrêt cardiaque</code></li>
+          <li>"Arrête" (5th) → <code>arrête tes salades</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h2>Test Category 5: Greedy Matching Verification</h2>
+  <div class="test-section">
+    <div class="highlight-instruction">
+      <strong>Important:</strong> These tests verify that the algorithm chooses the LONGEST match
+    </div>
+
+    <div class="test-item">
+      <span class="category multi-word-cat">Greedy test</span>
+      <div class="test-text">
+        <span class="arrow">→</span> Nous avons un arrêt de jeu prolongé.
+      </div>
+      <div class="expected">
+        <strong>Hover "arrêt"</strong> → Should show <code>arrêt de jeu</code> (3 words), not just <code>arrêt</code> (1 word)
+      </div>
+    </div>
+
+    <div class="test-item">
+      <span class="category multi-word-cat">Greedy test</span>
+      <div class="test-text">
+        <span class="arrow">→</span> L'arrêt par braquage est dangereux.
+      </div>
+      <div class="expected">
+        <strong>Hover "arrêt"</strong> → Should show <code>arrêt par braquage</code> (3 words)
+      </div>
+    </div>
+
+    <div class="test-item">
+      <span class="category multi-word-cat">Greedy test</span>
+      <div class="test-text">
+        <span class="arrow">→</span> C'est un arrêt par épuisement des ressources.
+      </div>
+      <div class="expected">
+        <strong>Hover "arrêt"</strong> → Should show <code>arrêt par épuisement</code> (3 words), not including "des ressources"
+      </div>
+    </div>
+
+    <div class="test-item">
+      <span class="category multi-word-cat">Greedy test</span>
+      <div class="test-text">
+        <span class="arrow">→</span> L'arrêt à chaud est préférable.
+      </div>
+      <div class="expected">
+        <strong>Hover "arrêt"</strong> → Should show <code>arrêt à chaud</code> (3 words)
+      </div>
+    </div>
+  </div>
+
+  <h2>Test Category 6: Edge Cases</h2>
+  <div class="test-section">
+    <div class="test-item">
+      <span class="category">Edge case</span>
+      <div class="test-text">
+        <span class="arrow">→</span> Simple word: bonjour tout le monde!
+      </div>
+      <div class="expected">
+        <strong>Hover "bonjour"</strong> → Should show <code>bonjour</code> (single word)
+      </div>
+    </div>
+
+    <div class="test-item">
+      <span class="category">Edge case</span>
+      <div class="test-text">
+        Multiple words side by side: arrêt de bus
+      </div>
+      <div class="expected">
+        <strong>Test each word separately:</strong> "arrêt" → multi-word; "de" or "bus" → no multi-word lookup
+      </div>
+    </div>
+
+    <div class="test-item">
+      <span class="category">Edge case</span>
+      <div class="test-text">
+        <span class="arrow">→</span> End of sentence: Il prend l'arrêt.
+      </div>
+      <div class="expected">
+        <strong>Hover "arrêt"</strong> → Should show <code>arrêt</code> (single word, no following text)
+      </div>
+    </div>
+
+    <div class="test-item">
+      <span class="category">Edge case</span>
+      <div class="test-text">
+        Partial match test: <span class="arrow">→</span> arrêt de pensée (assuming this doesn't exist)
+      </div>
+      <div class="expected">
+        <strong>Hover "arrêt"</strong> → Should fall back to <code>arrêt</code> (single word)
+      </div>
+    </div>
+  </div>
+
+  <h2>Performance Verification</h2>
+  <div class="test-section">
+    <div class="test-item">
+      <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin: 10px 0;">
+        <h4 style="margin-top: 0;">✅ Expected Behaviors Checklist:</h4>
+        <ul style="line-height: 1.8;">
+          <li>✓ Hovering the FIRST word shows the full multi-word expression</li>
+          <li>✓ The LONGEST matching expression is always chosen (greedy)</li>
+          <li>✓ Hovering non-first words doesn't trigger multi-word lookup</li>
+          <li>✓ Falls back to single-word if no multi-word match exists</li>
+          <li>✓ Popup shows "multi-word expression (N words)" label</li>
+          <li>✓ Console logs show the matching process clearly</li>
+          <li>✓ Works with uppercase/lowercase variations</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="test-item">
+      <div style="background: #fff3e0; padding: 15px; border-radius: 5px; margin: 10px 0;">
+        <h4 style="margin-top: 0;">🔍 Debugging Tips:</h4>
+        <ul style="line-height: 1.8;">
+          <li>Open browser console (F12) to see detailed logs</li>
+          <li>Look for: <code>[Dict] Looking for multi-word expressions</code></li>
+          <li>Check: <code>[Dict] Found multi-word match: X (N words)</code></li>
+          <li>Verify: <code>[French Popups] Detected word data</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
