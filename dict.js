@@ -8,6 +8,8 @@ class Dictionary {
     this.currentLanguage = 'eng';
     this.indexCache = null;
     this.indexLoaded = false;
+    this.conjugationIndexCache = null;
+    this.conjugationIndexLoaded = false;
   }
 
   /**
@@ -16,6 +18,7 @@ class Dictionary {
   async init(language) {
     this.currentLanguage = language || 'eng';
     await this.loadIndex();
+    await this.loadConjugationIndex();
   }
 
   /**
@@ -51,6 +54,42 @@ class Dictionary {
     } catch (error) {
       console.error('[French Popups] Error loading index:', error);
       this.indexLoaded = false;
+      return false;
+    }
+  }
+
+  /**
+   * Load conjugation index file into memory
+   */
+  async loadConjugationIndex() {
+    const indexPath = chrome.runtime.getURL('data/fra.idx');
+
+    try {
+      const response = await fetch(indexPath);
+      if (!response.ok) {
+        throw new Error(`Failed to load conjugation index: ${response.status}`);
+      }
+
+      const indexText = await response.text();
+
+      // Parse index into array of [conjugated_form, offset]
+      this.conjugationIndexCache = indexText
+        .trim()
+        .split('\n')
+        .map(line => {
+          const [conjugatedForm, offset] = line.split('\t');
+          return {
+            conjugatedForm: conjugatedForm,
+            offset: parseInt(offset, 10)
+          };
+        });
+
+      this.conjugationIndexLoaded = true;
+      console.log(`[French Popups] Loaded ${this.conjugationIndexCache.length} conjugation entries`);
+      return true;
+    } catch (error) {
+      console.error('[French Popups] Error loading conjugation index:', error);
+      this.conjugationIndexLoaded = false;
       return false;
     }
   }
@@ -131,6 +170,164 @@ class Dictionary {
     }
 
     return results;
+  }
+
+  /**
+   * Binary search for conjugated form in conjugation index
+   * Returns the first matching entry (since there can be multiple)
+   */
+  binarySearchConjugation(conjugatedForm) {
+    if (!this.conjugationIndexCache || this.conjugationIndexCache.length === 0) {
+      return null;
+    }
+
+    const searchTerm = conjugatedForm.toLowerCase();
+    let left = 0;
+    let right = this.conjugationIndexCache.length - 1;
+
+    while (left <= right) {
+      const mid = Math.floor((left + right) / 2);
+      const entry = this.conjugationIndexCache[mid];
+
+      if (entry.conjugatedForm === searchTerm) {
+        return entry;
+      } else if (entry.conjugatedForm < searchTerm) {
+        left = mid + 1;
+      } else {
+        right = mid - 1;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Fetch conjugation entries from fra.u8 file
+   * Reads from offset until the conjugated form changes
+   */
+  async fetchConjugationEntries(offset, conjugatedForm) {
+    const u8Path = chrome.runtime.getURL('data/fra.u8');
+    const searchTerm = conjugatedForm.toLowerCase();
+
+    try {
+      // Read a reasonable chunk (we'll read line by line)
+      // Most conjugated forms won't have more than 10-20 entries
+      const chunkSize = 10000; // Read 10KB at a time
+      const response = await fetch(u8Path, {
+        headers: {
+          'Range': `bytes=${offset}-${offset + chunkSize - 1}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch conjugation entries: ${response.status}`);
+      }
+
+      const text = await response.text();
+      const lines = text.split('\n');
+      const entries = [];
+
+      // Parse lines until we find a different conjugated form
+      for (const line of lines) {
+        if (!line.trim()) continue;
+
+        const parsed = this.parseConjugationEntry(line);
+        if (!parsed) continue;
+
+        // Stop when we encounter a different conjugated form
+        if (parsed.conjugatedForm.toLowerCase() !== searchTerm) {
+          break;
+        }
+
+        entries.push(parsed);
+      }
+
+      // Return the first entry (most likely the standard form)
+      return entries.length > 0 ? entries[0] : null;
+    } catch (error) {
+      console.error('[French Popups] Error fetching conjugation entries:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Parse conjugation entry line
+   * Format: conjugated_form<TAB>infinitive<TAB>tense(s)<TAB>ipa(s)<TAB>full_form
+   */
+  parseConjugationEntry(line) {
+    const fields = line.split('\t');
+    if (fields.length < 5) {
+      return null;
+    }
+
+    return {
+      conjugatedForm: fields[0],
+      infinitive: fields[1],
+      tenses: fields[2],
+      ipas: fields[3],
+      fullForm: fields[4]
+    };
+  }
+
+  /**
+   * Strip pronoun from IPA pronunciation
+   * Example: \ʒə li\ -> \li\, \[il/ɛl/ɔ̃] li\ -> \li\
+   */
+  stripPronounFromIPA(ipa, fullForm) {
+    if (!ipa || !fullForm) return ipa;
+
+    // Remove the backslashes
+    let cleaned = ipa.replace(/\\/g, '');
+
+    // Remove pronoun patterns at the beginning
+    // Patterns: ʒə, ty, il/ɛl/ɔ̃, [il/ɛl/ɔ̃], nu, vu, etc.
+    cleaned = cleaned.replace(/^(ʒə|ty|nu|vu|kə\s*ʒə|kə\s*ty|kə\s*nu|kə\s*vu)\s+/, '');
+    cleaned = cleaned.replace(/^k‿\[[^\]]+\]\s+/, ''); // qu'il/elle/on
+    cleaned = cleaned.replace(/^\[[^\]]+\]\s+/, ''); // [il/ɛl/ɔ̃]
+
+    // Also remove reflexive pronouns at the start if present
+    cleaned = cleaned.replace(/^(mə|tə|sə|s‿)\s*/, '');
+
+    return '\\' + cleaned + '\\';
+  }
+
+  /**
+   * Format tense information for display
+   * Example: "indicative;present" -> "indicative present"
+   * Example: "imperative;present" -> "imperative"
+   */
+  formatTenseInfo(tenses, fullForm) {
+    if (!tenses) return '';
+
+    const parts = tenses.split(';');
+
+    // Extract person/number from fullForm if present
+    let personNumber = '';
+    if (fullForm) {
+      // Check for pronouns: je, tu, il/elle/on, nous, vous, ils/elles
+      if (fullForm.startsWith('je ')) personNumber = '1st person singular';
+      else if (fullForm.startsWith('tu ')) personNumber = '2nd person singular';
+      else if (fullForm.match(/^(il|elle|on)\s/)) personNumber = '3rd person singular';
+      else if (fullForm.startsWith('nous ')) personNumber = '1st person plural';
+      else if (fullForm.startsWith('vous ')) personNumber = '2nd person plural';
+      else if (fullForm.match(/^(ils|elles)\s/)) personNumber = '3rd person plural';
+      else if (fullForm.match(/^qu['']?(il|elle|on)\s/)) personNumber = '3rd person singular';
+      else if (fullForm.match(/^qu['']?(ils|elles)\s/)) personNumber = '3rd person plural';
+      else if (fullForm.match(/^que\s+(je|j[''])\s/)) personNumber = '1st person singular';
+      else if (fullForm.match(/^que\s+tu\s/)) personNumber = '2nd person singular';
+      else if (fullForm.match(/^que\s+nous\s/)) personNumber = '1st person plural';
+      else if (fullForm.match(/^que\s+vous\s/)) personNumber = '2nd person plural';
+    }
+
+    // Build tense description
+    let tenseDesc = parts.join(' ');
+
+    // Add person/number if present
+    if (personNumber) {
+      tenseDesc = `${tenseDesc}, ${personNumber}`;
+    }
+
+    return tenseDesc;
   }
 
   /**
@@ -296,6 +493,39 @@ class Dictionary {
       }
     }
 
+    // If still not found, try conjugation lookup
+    if (!indexEntry) {
+      console.log('[Dict] Trying conjugation lookup...');
+      const conjugationResult = await this.lookupConjugation(normalizedWord);
+
+      if (conjugationResult) {
+        console.log('[Dict] Found conjugation, looking up infinitive:', conjugationResult.infinitive);
+
+        // Now lookup the infinitive in the main dictionary
+        const infinitiveEntry = await this.lookupInfinitive(conjugationResult.infinitive);
+
+        if (infinitiveEntry) {
+          // Augment the entry with conjugation info
+          infinitiveEntry.searchedForm = normalizedWord;
+          infinitiveEntry.conjugationInfo = conjugationResult;
+
+          // Create inflection note
+          const tenseInfo = this.formatTenseInfo(conjugationResult.tenses, conjugationResult.fullForm);
+          infinitiveEntry.inflectionNote = `conjugated form of "${conjugationResult.infinitive}" (${tenseInfo})`;
+
+          // Override pronunciation with conjugated form's IPA (stripped of pronouns)
+          if (conjugationResult.ipas) {
+            infinitiveEntry.pronunciation = this.stripPronounFromIPA(conjugationResult.ipas, conjugationResult.fullForm);
+          }
+
+          console.log('[Dict] Successfully augmented infinitive entry with conjugation info');
+          return infinitiveEntry;
+        } else {
+          console.log('[Dict] Could not find infinitive in dictionary');
+        }
+      }
+    }
+
     if (!indexEntry) {
       console.log('[Dict] Word not found in index (even after heuristics)');
       return null;
@@ -421,6 +651,54 @@ class Dictionary {
 
     console.log('[Dict] No multi-word expression matched');
     return null;
+  }
+
+  /**
+   * Look up a conjugated form in the conjugation dictionary
+   */
+  async lookupConjugation(conjugatedForm) {
+    if (!this.conjugationIndexLoaded) {
+      console.log('[Dict] Conjugation index not loaded');
+      return null;
+    }
+
+    const indexEntry = this.binarySearchConjugation(conjugatedForm);
+    if (!indexEntry) {
+      console.log('[Dict] Conjugated form not found in conjugation index');
+      return null;
+    }
+
+    console.log('[Dict] Found conjugation at offset:', indexEntry.offset);
+    const conjugationEntry = await this.fetchConjugationEntries(indexEntry.offset, conjugatedForm);
+
+    return conjugationEntry;
+  }
+
+  /**
+   * Look up infinitive form in the dictionary (bypassing heuristics)
+   */
+  async lookupInfinitive(infinitive) {
+    const normalizedInfinitive = infinitive.normalize('NFC').toLowerCase();
+
+    // Get all entries for this infinitive
+    const indexEntries = this.binarySearchAll(normalizedInfinitive);
+
+    if (indexEntries.length === 0) {
+      return null;
+    }
+
+    // If multiple entries exist, prefer verb entries
+    for (const indexEntry of indexEntries) {
+      const entry = await this.fetchEntry(indexEntry.offset, indexEntry.length);
+      // Check if this is a verb entry
+      if (entry && entry.pos && (entry.pos === 'v' || entry.pos.includes('verb'))) {
+        return entry;
+      }
+    }
+
+    // If no verb entry found, return the first entry
+    const entry = await this.fetchEntry(indexEntries[0].offset, indexEntries[0].length);
+    return entry;
   }
 
   /**
