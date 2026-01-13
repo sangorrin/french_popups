@@ -77,7 +77,7 @@ transblock, transword {
 .french-popup-meta .pron {
   background: #e0e7ff;
   color: #4338ca;
-  font-family: 'Courier New', monospace;
+  font-family: 'Lucida Sans Unicode', 'DejaVu Sans', 'Segoe UI', Arial, sans-serif;
   text-transform: none;
   font-size: 12px;
 }

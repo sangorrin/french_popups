@@ -504,7 +504,7 @@ async function showPopup(word, followingText, x, y) {
     <div class="french-popup-meta">
       ${entry.pos ? `<span class="pos">${escapeHtml(entry.pos)}</span>` : ''}
       ${entry.gender ? `<span class="gender">${escapeHtml(entry.gender)}</span>` : ''}
-      ${entry.pronunciation ? `<span class="pron">[${escapeHtml(entry.pronunciation)}]</span>` : ''}
+      ${entry.pronunciation ? `<span class="pron">[${entry.pronunciation}]</span>` : ''}
     </div>
     <div class="french-popup-translations">${formatTranslations(entry.translations)}</div>
     ${entry.definition ? `<div class="french-popup-definition">${escapeHtml(entry.definition)}</div>` : ''}
