@@ -3,3 +3,4 @@ data/*.tei
 data/*.u8
 data/*.idx
 data/*.jsonl
+data/*.original

@@ -281,6 +281,7 @@ class Dictionary {
     if (!tenses) return '';
 
     const parts = tenses.split(';');
+    const moods = ['indicative', 'subjunctive', 'conditional', 'imperative', 'participle', 'gerund', 'infinitive'];
 
     // Extract person/number from fullForm if present
     let personNumber = '';
@@ -300,8 +301,32 @@ class Dictionary {
       else if (fullForm.match(/^que\s+vous\s/)) personNumber = '2nd person plural';
     }
 
-    // Build tense description
-    let tenseDesc = parts.join(' ');
+    // Parse moods and their tenses
+    let tenseDesc = '';
+    let currentMood = null;
+    let moodTenses = {};
+
+    for (const part of parts) {
+      if (moods.includes(part.toLowerCase())) {
+        currentMood = part;
+        moodTenses[currentMood] = [];
+      } else if (currentMood) {
+        moodTenses[currentMood].push(part);
+      }
+    }
+
+    // Format each mood with its tenses
+    const formattedMoods = [];
+    for (const mood of moods) {
+      if (moodTenses[mood]) {
+        const tenseList = moodTenses[mood];
+        // Join tenses with " or " for readability
+        const tensesStr = tenseList.join(' or ');
+        formattedMoods.push(`${mood} ${tensesStr}`);
+      }
+    }
+
+    tenseDesc = formattedMoods.join('; ');
 
     // Add person/number if present
     if (personNumber) {

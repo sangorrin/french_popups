@@ -167,13 +167,61 @@ def parse_conjugation_entry(line):
     }
 
 def merge_tenses(entries):
-    """Merge tenses from multiple entries into a single set"""
-    tense_set = set()
+    """
+    Merge tenses from multiple entries, grouping by mood.
+
+    Format: mood;tense1;tense2;mood;tense1;...
+    Multi-word tenses are joined with spaces: "past anterior" instead of "past;anterior"
+    Example: indicative;past anterior;future perfect;subjunctive;past;pluperfect
+    """
+    # Common moods in French
+    moods = {'indicative', 'subjunctive', 'conditional', 'imperative', 'participle',
+             'gerund', 'infinitive'}
+
+    # Collect tenses grouped by mood
+    mood_tenses = {}
+
     for entry in entries:
         if entry['tenses']:
-            tenses = entry['tenses'].split(';')
-            tense_set.update(t.strip() for t in tenses if t.strip())
-    return ';'.join(sorted(tense_set))
+            tags = [t.strip() for t in entry['tenses'].split(';') if t.strip()]
+
+            # Group consecutive non-mood tags into composite tenses
+            current_mood = None
+            current_tense_parts = []
+
+            for tag in tags:
+                if tag.lower() in moods:
+                    # Start of a new mood
+                    # Save previous tense if any
+                    if current_tense_parts:
+                        tense = ' '.join(current_tense_parts)
+                        if current_mood:
+                            mood_tenses[current_mood].add(tense)
+                        current_tense_parts = []
+
+                    current_mood = tag
+                    if current_mood not in mood_tenses:
+                        mood_tenses[current_mood] = set()
+                else:
+                    # This is a tense part, accumulate it
+                    current_tense_parts.append(tag)
+
+            # Don't forget the last tense
+            if current_tense_parts and current_mood:
+                tense = ' '.join(current_tense_parts)
+                mood_tenses[current_mood].add(tense)
+
+    # Build result: mood1;tense1;tense2;mood2;tense1;...
+    result_parts = []
+    for mood in ['indicative', 'subjunctive', 'conditional', 'imperative',
+                 'participle', 'gerund', 'infinitive']:
+        if mood in mood_tenses:
+            result_parts.append(mood)
+            # Add tenses for this mood in sorted order
+            tenses = sorted(mood_tenses[mood])
+            result_parts.extend(tenses)
+
+    return ';'.join(result_parts) if result_parts else ''
 
 def deduplicate_conjugations(u8_path, idx_path):
     """Deduplicate conjugations and return list of entries"""
@@ -252,7 +300,7 @@ def deduplicate_conjugations(u8_path, idx_path):
             # Select best entry
             best_entry = max(valid_entries, key=score_entry)
 
-            # Merge tenses from ALL valid entries
+            # Merge tenses from ALL valid entries, grouping by mood
             merged_tenses = merge_tenses(valid_entries)
             best_entry['tenses'] = merged_tenses
 
