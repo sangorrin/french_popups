@@ -45,7 +45,7 @@ class Dictionary {
         .map(line => {
           const [headword, offset, length] = line.split('\t');
           return {
-            headword: headword,
+            headword: headword.toLowerCase(),
             offset: parseInt(offset, 10),
             length: parseInt(length, 10)
           };
@@ -82,7 +82,7 @@ class Dictionary {
         .map(line => {
           const [conjugatedForm, offset] = line.split('\t');
           return {
-            conjugatedForm: conjugatedForm,
+            conjugatedForm: conjugatedForm.toLowerCase(),
             offset: parseInt(offset, 10)
           };
         });
@@ -259,7 +259,7 @@ class Dictionary {
    */
   parseConjugationEntry(line) {
     const fields = line.split('\t');
-    if (fields.length < 5) {
+    if (fields.length < 4) {
       return null;
     }
 
@@ -268,7 +268,7 @@ class Dictionary {
       infinitive: fields[1],
       tenses: fields[2],
       ipas: fields[3],
-      fullForm: fields[4]
+      fullForm: fields[4] || fields[0]  // Use conjugatedForm as fullForm if not present
     };
   }
 

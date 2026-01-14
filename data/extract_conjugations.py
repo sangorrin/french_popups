@@ -4,11 +4,17 @@
 
 """
 Extract French verb conjugations from fr-extract.jsonl and create:
-- fra.u8: tab-separated file with conjugated forms and their metadata
+- fra.u8: deduplicated conjugations with all tenses merged
 - fra.idx: index file for fast lookups
 
+Pipeline:
+1. Extract conjugations from fr-extract.jsonl
+2. Deduplicate by conjugated form, keeping only the best entry
+3. For entries with "participle;past", preserve only that tense
+4. Generate index from deduplicated data
+
 Format of fra.u8:
-conjugated_form<TAB>infinitive<TAB>tense(s)<TAB>ipa(s)<TAB>full_form
+conjugated_form<TAB>infinitive<TAB>tense(s)<TAB>ipa(s)
 """
 
 import json
@@ -28,14 +34,13 @@ def normalize_text(text):
     normalized = normalized.replace('\u2018', '\u2019')  # Left single quote -> curly apostrophe
     return normalized
 
-def extract_conjugations(jsonl_path, output_u8, output_idx):
+def extract_conjugations(jsonl_path, output_u8):
     """
     Parse fr-extract.jsonl and extract verb conjugations.
 
     Args:
         jsonl_path: Path to the input JSONL file
         output_u8: Path for the output .u8 file
-        output_idx: Path for the output .idx file
     """
     conjugations = []
 
@@ -109,11 +114,8 @@ def extract_conjugations(jsonl_path, output_u8, output_idx):
                 # Join IPAs with semicolon
                 ipa_str = ';'.join(processed_ipas) if processed_ipas else ''
 
-                # Full form is the complete conjugation as it appears (normalized)
-                full_form = normalize_text(form)
-
                 # Create tab-separated entry
-                entry_line = f"{conjugated_form}\t{infinitive}\t{tenses}\t{ipa_str}\t{full_form}\n"
+                entry_line = f"{conjugated_form}\t{infinitive}\t{tenses}\t{ipa_str}\n"
                 conjugations.append((conjugated_form.lower(), entry_line))
                 form_count += 1
 
@@ -125,53 +127,242 @@ def extract_conjugations(jsonl_path, output_u8, output_idx):
     print("\nSorting conjugations...")
     conjugations.sort(key=lambda x: x[0])
 
-    # Write .u8 file and create index
+    # Write .u8 file
     print(f"Writing {output_u8}...")
-    print(f"Writing {output_idx}...")
 
-    with open(output_u8, 'w', encoding='utf-8') as u8_file, \
-         open(output_idx, 'w', encoding='utf-8') as idx_file:
-
-        current_word = None
-        word_start_offset = 0
-
-        for conjugated_form_lower, entry_line in conjugations:
-            # Write to .u8 file
-            byte_offset = u8_file.tell()
+    with open(output_u8, 'w', encoding='utf-8') as u8_file:
+        for _, entry_line in conjugations:
             u8_file.write(entry_line)
 
-            # Track start of each new word for index
-            if conjugated_form_lower != current_word:
-                if current_word is not None:
-                    # Write index entry for previous word
-                    idx_file.write(f"{current_word}\t{word_start_offset}\n")
-                current_word = conjugated_form_lower
-                word_start_offset = byte_offset
-
-        # Write final index entry
-        if current_word is not None:
-            idx_file.write(f"{current_word}\t{word_start_offset}\n")
-
-    print("\nDone! Created:")
     print(f"  - {output_u8} ({form_count} entries)")
-    print(f"  - {output_idx} (index file)")
+    return conjugations
+
+def load_valid_infinitives(idx_path):
+    """Load all headwords from fra-eng.idx"""
+    valid_infinitives = set()
+    try:
+        with open(idx_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                parts = line.strip().split('\t')
+                if len(parts) >= 1:
+                    headword = parts[0].lower().strip()
+                    if headword:
+                        valid_infinitives.add(headword)
+        print(f"[INFO] Loaded {len(valid_infinitives)} valid infinitives from {idx_path}")
+        return valid_infinitives
+    except (IOError, OSError) as e:
+        print(f"[ERROR] Failed to load {idx_path}: {e}")
+        sys.exit(1)
+
+def parse_conjugation_entry(line):
+    """Parse a conjugation entry line"""
+    parts = line.rstrip('\n').split('\t')
+    if len(parts) < 4:
+        return None
+
+    return {
+        'conjugated_form': parts[0],
+        'infinitive': parts[1],
+        'tenses': parts[2],
+        'ipas': parts[3]
+    }
+
+def merge_tenses(entries):
+    """Merge tenses from multiple entries into a single set"""
+    tense_set = set()
+    for entry in entries:
+        if entry['tenses']:
+            tenses = entry['tenses'].split(';')
+            tense_set.update(t.strip() for t in tenses if t.strip())
+    return ';'.join(sorted(tense_set))
+
+def deduplicate_conjugations(u8_path, idx_path):
+    """Deduplicate conjugations and return list of entries"""
+    entries_by_form = {}
+    skipped_invalid = 0
+    skipped_no_valid = 0
+    total_entries = 0
+
+    print(f"\n[DEDUPLICATION] Loading valid infinitives from {idx_path}...")
+    valid_infinitives = load_valid_infinitives(idx_path)
+
+    print(f"[DEDUPLICATION] Reading conjugations from {u8_path}...")
+
+    try:
+        with open(u8_path, 'r', encoding='utf-8') as f:
+            for line_num, line in enumerate(f, 1):
+                if line_num % 100000 == 0:
+                    print(f"[DEDUPLICATION] Processed {line_num} lines...")
+
+                entry = parse_conjugation_entry(line)
+                if not entry:
+                    skipped_invalid += 1
+                    continue
+
+                total_entries += 1
+                conjugated_form = entry['conjugated_form'].lower()
+
+                if conjugated_form not in entries_by_form:
+                    entries_by_form[conjugated_form] = []
+
+                entries_by_form[conjugated_form].append(entry)
+
+        print(f"[DEDUPLICATION] Total valid entries read: {total_entries}")
+        print(f"[DEDUPLICATION] Unique conjugated forms: {len(entries_by_form)}")
+        print(f"[DEDUPLICATION] Skipped invalid entries: {skipped_invalid}")
+
+    except (IOError, OSError) as e:
+        print(f"[ERROR] Failed to read {u8_path}: {e}")
+        sys.exit(1)
+
+    # Deduplicate each form
+    print("[DEDUPLICATION] Deduplicating entries...")
+    deduplicated = []
+
+    for conjugated_form, entries in entries_by_form.items():
+        # Filter by valid infinitives
+        valid_entries = [e for e in entries
+                        if e['infinitive'].lower().strip() in valid_infinitives]
+
+        if not valid_entries:
+            skipped_no_valid += len(entries)
+            continue
+
+        # Check if any entry has tenses == "participle;past"
+        participle_past_entries = [e for e in valid_entries
+                                   if e['tenses'] == 'participle;past']
+
+        if participle_past_entries:
+            # Use the participle;past entry without merging tenses
+            best_entry = participle_past_entries[0]
+            deduplicated.append(best_entry)
+        else:
+            # Score entries by completeness
+            def score_entry(entry):
+                score = 0
+                if entry['conjugated_form'].strip():
+                    score += 1
+                if entry['infinitive'].strip():
+                    score += 1
+                if entry['tenses'].strip():
+                    score += 1
+                if entry['ipas'].strip():
+                    score += 1
+                return score
+
+            # Select best entry
+            best_entry = max(valid_entries, key=score_entry)
+
+            # Merge tenses from ALL valid entries
+            merged_tenses = merge_tenses(valid_entries)
+            best_entry['tenses'] = merged_tenses
+
+            deduplicated.append(best_entry)
+
+    print(f"[DEDUPLICATION] After deduplication: {len(deduplicated)} entries")
+    print(f"[DEDUPLICATION] Skipped entries (infinitive not in fra-eng.idx): {skipped_no_valid}")
+
+    return deduplicated
+
+def generate_index(u8_path, idx_path, deduplicated_entries):
+    """Generate index from deduplicated entries"""
+    print(f"\n[INDEX] Writing deduplicated {u8_path}...")
+    try:
+        with open(u8_path, 'w', encoding='utf-8') as u8_file:
+            for entry in deduplicated_entries:
+                line = '\t'.join([
+                    entry['conjugated_form'],
+                    entry['infinitive'],
+                    entry['tenses'],
+                    entry['ipas']
+                ])
+                u8_file.write(line + '\n')
+
+        print(f"[INDEX] Wrote {len(deduplicated_entries)} entries to {u8_path}")
+    except (IOError, OSError) as e:
+        print(f"[ERROR] Failed to write {u8_path}: {e}")
+        sys.exit(1)
+
+    # Generate index
+    print(f"[INDEX] Generating index {idx_path}...")
+
+    try:
+        # Build offset map from the deduplicated u8 file
+        offset_map = {}
+        with open(u8_path, 'rb') as f:
+            offset = 0
+            for line in f:
+                line_text = line.decode('utf-8', errors='replace').rstrip('\n')
+                fields = line_text.split('\t')
+                if len(fields) >= 1:
+                    conjugated_form = fields[0].strip()
+                    if conjugated_form:
+                        offset_map[conjugated_form] = offset
+                # offset is the byte position of the start of this line
+                offset += len(line)  # line includes the newline in binary mode
+
+        # Create sorted index entries
+        index_entries = sorted(offset_map.items(), key=lambda x: x[0].lower())
+
+        # Write index file
+        with open(idx_path, 'w', encoding='utf-8') as idx_file:
+            for conjugated_form, offset in index_entries:
+                idx_file.write(f"{conjugated_form}\t{offset}\n")
+
+        print(f"[INDEX] Wrote {len(index_entries)} index entries to {idx_path}")
+    except (IOError, OSError) as e:
+        print(f"[ERROR] Failed to generate index: {e}")
+        sys.exit(1)
 
 def main(): # pylint: disable=missing-function-docstring
     # Set up paths
     script_dir = Path(__file__).parent
     jsonl_path = script_dir / 'fr-extract.jsonl'
+    fra_eng_idx = script_dir / 'fra-eng.idx'
     output_u8 = script_dir / 'fra.u8'
     output_idx = script_dir / 'fra.idx'
 
-    # Check if input file exists
+    # Check if input files exist
     if not jsonl_path.exists():
         print(f"Error: {jsonl_path} not found!")
         print("Please run download_fr_extract.sh first or ensure the file exists.")
         sys.exit(1)
 
-    # Extract conjugations
-    extract_conjugations(jsonl_path, output_u8, output_idx)
-    print("\nConjugation extraction complete!")
+    if not fra_eng_idx.exists():
+        print(f"Error: {fra_eng_idx} not found!")
+        print("This is required for deduplication.")
+        sys.exit(1)
+
+    # Step 1: Extract conjugations
+    print("=" * 70)
+    print("STEP 1: Extracting conjugations from JSONL")
+    print("=" * 70)
+    extract_conjugations(jsonl_path, output_u8)
+
+    # Step 2: Deduplicate
+    print("\n" + "=" * 70)
+    print("STEP 2: Deduplicating entries")
+    print("=" * 70)
+    deduplicated = deduplicate_conjugations(output_u8, fra_eng_idx)
+
+    # Step 3: Generate index
+    print("\n" + "=" * 70)
+    print("STEP 3: Generating index")
+    print("=" * 70)
+    generate_index(output_u8, output_idx, deduplicated)
+
+    # Summary
+    print("\n" + "=" * 70)
+    print("COMPLETE")
+    print("=" * 70)
+
+    u8_size = output_u8.stat().st_size
+    idx_size = output_idx.stat().st_size
+
+    print("\nCreated:")
+    print(f"  - {output_u8} ({u8_size / 1024 / 1024:.1f} MB, {len(deduplicated)} entries)")
+    print(f"  - {output_idx} ({idx_size / 1024 / 1024:.1f} MB)")
+    print(f"\nTotal output: {(u8_size + idx_size) / 1024 / 1024:.1f} MB")
 
 if __name__ == '__main__':
     main()
