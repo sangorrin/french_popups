@@ -99,20 +99,19 @@ def extract_conjugations(jsonl_path, output_u8):
                 # Join tenses with semicolon
                 tenses = ';'.join(tags) if tags else ''
 
-                # Process IPAs: remove backslashes and extract only the conjugated verb part
-                processed_ipas = []
-                for ipa in ipas:
+                # Process IPA: remove backslashes and extract only the conjugated verb part
+                # Use only the first IPA to avoid having multiple variants
+                ipa_str = ''
+                if ipas:
+                    # Take only the first IPA
+                    ipa = ipas[0]
                     # Remove backslashes from beginning and end
                     cleaned = ipa.strip('\\')
                     # Split by space and liaison character '‿'
                     parts = re.split(r'[\s‿]+', cleaned)
                     if parts:
                         # Take the last part which is the conjugated verb's IPA
-                        conjugated_verb_ipa = parts[-1]
-                        processed_ipas.append(conjugated_verb_ipa)
-
-                # Join IPAs with semicolon
-                ipa_str = ';'.join(processed_ipas) if processed_ipas else ''
+                        ipa_str = parts[-1]
 
                 # Create tab-separated entry
                 entry_line = f"{conjugated_form}\t{infinitive}\t{tenses}\t{ipa_str}\n"

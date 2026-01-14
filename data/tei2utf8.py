@@ -81,9 +81,11 @@ def parse_entry(entry_elem) -> Optional[Tuple[str, str, str, str, str, str]]:
         return None
 
     # Extract pronunciation(s) from <form>/<pron>
+    # Use only the first pronunciation to avoid having multiple IPAs
     pron_elems = entry_elem.findall(f".//{TEI_NS}form/{TEI_NS}pron")
-    prons = [normalize_text(p.text) for p in pron_elems if p.text]
-    pron = ';'.join(prons) if prons else ""
+    pron = ""
+    if pron_elems and pron_elems[0].text:
+        pron = normalize_text(pron_elems[0].text)
 
     # Extract POS from <gramGrp>/<pos>
     pos_elem = entry_elem.find(f".//{TEI_NS}pos")
