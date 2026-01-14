@@ -442,6 +442,30 @@ class Dictionary {
             }
           }
         }
+
+        // If the plural candidate ends with 'e', try converting it from feminine to masculine
+        if (candidate.endsWith('e')) {
+          console.log('[Dict] Plural candidate ends with e, trying feminine-to-masculine conversion...');
+          const feminineToMasculineCandidates = this.getFeminineCandidates(candidate);
+
+          for (const masculineCandidate of feminineToMasculineCandidates) {
+            console.log('[Dict] Trying feminine-to-masculine from plural candidate:', masculineCandidate);
+            const masculineIndexEntries = this.binarySearchAll(masculineCandidate);
+
+            if (masculineIndexEntries.length > 0) {
+              for (const indexEntry of masculineIndexEntries) {
+                const entry = await this.fetchEntry(indexEntry.offset, indexEntry.length);
+
+                if (entry && this.isValidFeminineTransformation(candidate, entry.headword, entry.pos, entry.gender)) {
+                  entry.searchedForm = normalizedWord;
+                  entry.inflectionNote = this.getInflectionNote(normalizedWord, entry.headword);
+                  console.log('[Dict] Validated feminine-to-masculine from plural form - POS:', entry.pos);
+                  return entry;
+                }
+              }
+            }
+          }
+        }
       }
     }
 
