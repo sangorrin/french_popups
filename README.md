@@ -2,7 +2,7 @@
 
 A Chrome extension for instant French-to-multilanguage dictionary lookups. Hover over any French word on a webpage to see translations in your preferred language.
 
-## Features
+## ✨ Features
 
 ✨ **Instant Translations**: Hover over French words to see instant translations
 🌍 **23 Languages**: Support for English, Spanish, German, Italian, Portuguese, and 18+ more
@@ -11,20 +11,37 @@ A Chrome extension for instant French-to-multilanguage dictionary lookups. Hover
 📚 **122,000+ Words**: Comprehensive dictionaries from WikDict/Wiktionary
 🎨 **Beautiful UI**: Clean, professional popup design with French colors
 
-## Supported Languages
+## 🌐 Supported Languages
 
 - 🇬🇧 English (eng) - 122,147 entries
+- 🇮🇹 Italian (ita) - 67,356 entries
 - 🇪🇸 Spanish (spa) - 52,659 entries
-- 🇩🇪 German (deu)
-- 🇮🇹 Italian (ita)
-- 🇵🇹 Portuguese (por)
-- 🇷🇺 Russian (rus)
-- 🇳🇱 Dutch (nld)
-- 🇵🇱 Polish (pol)
-- 🇨🇿 Czech (ces)
-- And 14 more languages!
+- 🇩🇪 German (deu) - 48,578 entries
+- 🇳🇱 Dutch (nld) - 31,874 entries
+- 🇵🇹 Portuguese (por) - 26,132 entries
+- 🇷🇺 Russian (rus) - 24,739 entries
+- 🇪🇸 Catalan (cat) - 23,678 entries
+- 🇵🇱 Polish (pol) - 21,689 entries
+- 🇸🇪 Swedish (swe) - 19,515 entries
+- 🇨🇿 Czech (ces) - 19,331 entries
+- 🇫🇮 Finnish (fin) - 17,179 entries
+- 🇯🇵 Japanese (jpn) - 16,724 entries
+- 🇬🇷 Greek (ell) - 14,272 entries
+- 🇩🇰 Danish (dan) - 13,466 entries
+- 🇮🇪 Irish (gle) - 12,637 entries
+- 🇱🇹 Lithuanian (lit) - 12,413 entries
+- 🇹🇷 Turkish (tur) - 11,628 entries
+- 🇨🇳 Chinese (zho) - 10,947 entries
+- 🇻🇦 Latin (lat) - 10,302 entries
+- 🇳🇴 Norwegian (nor) - 9,755 entries
+- 🇧🇬 Bulgarian (bul) - 9,626 entries
+- 🇮🇩 Indonesian (ind) - 7,837 entries
 
-## Installation
+## 📥 Installation
+
+### From Chrome Store
+
+Not published yet.
 
 ### From Source
 
@@ -35,65 +52,38 @@ A Chrome extension for instant French-to-multilanguage dictionary lookups. Hover
 5. Select the `french-popups` folder
 6. The extension icon will appear in your toolbar
 
-## Usage
+## 🚀 Usage
 
-1. **Automatic Activation**: Visit any French website - the extension will automatically detect French content and activate
+1. **Automatic Activation**: Visit any French website - the extension will automatically detect French content and activate. Otherwise you can force enable the extension on any page via the extension popup menu
 2. **Choose Language**: Click the extension icon to select your preferred translation language
 3. **Hover to Translate**: Simply hover your mouse over any French word to see its translation
-4. **Manual Override**: Force enable/disable on any page via the extension popup
 
-## How It Works
+## 📄 License and Credits
 
-### Three-Layer French Detection
+### Extension License
 
-1. **HTML lang attribute**: Checks `<html lang="fr">` tag
-2. **Character analysis**: Scans for French-specific accented characters (à, é, ç, etc.)
-3. **Dictionary sampling**: Verifies random words against French dictionary
+French Popups is released under the **GNU General Public License v2.0** (GPLv2). See [LICENSE](LICENSE) for details.
 
-### Dictionary Format
+### 📚 Dictionary License and Credits
 
-- **`.u8` files**: UTF-8 tab-separated dictionary entries (headword, POS, gender, pronunciation, translations, definition)
-- **`.idx` files**: Sorted binary-searchable index for O(log n) lookups
+The dictionaries included in this extension are derived from freely available sources and released under the [Creative Commons Attribution-ShareAlike License v3](https://creativecommons.org/licenses/by-sa/3.0/). We are grateful to the contributors and maintainers of:
 
-## Development
+- **WikDict** - for the comprehensive bilingual dictionaries
+- **Kaikki.org** - for the French verb conjugations and pronunciations
+- **Wiktionary** - for the underlying data
 
-### File Structure
+See [LICENSE-DICTIONARIES](LICENSE-DICTIONARIES) for full attribution and details.
 
-```
-french-popups/
-├── manifest.json          # Extension manifest
-├── background.js          # Service worker
-├── dict.js               # Dictionary lookup module
-├── content.js            # Hover detection & popup display
-├── content.css           # Popup styling
-├── popup.html/css/js     # Extension popup UI
-├── icons/                # Extension icons
-└── data/                 # Dictionary files (.u8 + .idx)
-```
+## 🔒 Privacy
 
-### Dictionary Generation
+Your privacy is important to us. We don't collect any personal data, track your activity, or send information to external servers. All translations happen completely offline on your device.
 
-Dictionaries are generated from WikDict TEI files using:
+For more information, see our [Privacy Policy](privacy-policy.md).
 
-```bash
-# Download latest dictionaries
-cd DRIVE/wikdict
-python3 wikdict_fra_xxx_downloader.py
+## 💬 Support
 
-# Convert to .u8/.idx format
-python3 tei2utf8.py
-```
+Have questions, found a bug, or want to request a feature?
 
-## Credits
+- Open an issue on the extension's [GitHub repository](https://github.com/sangorrin/french_popups/issues)
+- Contact via the Chrome Web Store support tab (TODO)
 
-- **Dictionaries**: [WikDict](http://www.wikdict.com/) (Wiktionary-based)
-- **Source Data**: [Wiktionary.org](https://www.wiktionary.org/) via [DBnary](http://kaiko.getalp.org/about-dbnary/)
-- **License**: Creative Commons Attribution-ShareAlike 3.0 Unported
-
-## Privacy
-
-All dictionary lookups happen **100% offline** on your device. No data is sent to external servers.
-
-## Version
-
-**1.0.0** - Initial release (January 2026)
