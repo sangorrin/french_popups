@@ -4,12 +4,12 @@ A Chrome extension for instant French-to-multilanguage dictionary lookups. Hover
 
 ## ✨ Features
 
-✨ **Instant Translations**: Hover over French words to see instant translations
-🌍 **23 Languages**: Support for English, Spanish, German, Italian, Portuguese, and 18+ more
-🔒 **100% Offline**: All dictionaries stored locally for privacy and speed
-🎯 **Smart Detection**: Automatically activates on French pages
-📚 **122,000+ Words**: Comprehensive dictionaries from WikDict/Wiktionary
-🎨 **Beautiful UI**: Clean, professional popup design with French colors
+- ✨ **Instant Translations**: Hover over French words to see instant translations
+- 🌍 **23 Languages**: Support for English, Spanish, German, Italian, Portuguese, and 18+ more
+- 🔒 **100% Offline**: All dictionaries stored locally for privacy and speed
+- 🎯 **Smart Detection**: Automatically activates on French pages
+- 📚 **122,000+ Words**: Comprehensive dictionaries from WikDict/Wiktionary
+- 🎨 **Beautiful UI**: Clean, professional popup design with French colors
 
 ## 🌐 Supported Languages
 
