@@ -1,0 +1,95 @@
+name: Release Extension
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggers on version tags like v1.0.0, v1.2.3, etc.
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version from tag
+        id: tag_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.14'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install lxml
+
+      - name: Generate dictionaries
+        run: |
+          cd data
+
+          # Download and convert WikDict bilingual dictionaries
+          echo "Downloading WikDict dictionaries..."
+          python3 wikdict_fra_xxx_downloader.py
+
+          # Convert TEI files to UTF-8 dictionary format
+          echo "Converting TEI files to dictionary format..."
+          python3 tei2utf8.py
+
+          # Download and extract French conjugations
+          echo "Downloading French conjugation data..."
+          bash download_fr_extract.sh
+
+          # Extract and process conjugations
+          echo "Extracting conjugations..."
+          python3 extract_conjugations.py
+
+          cd ..
+
+      - name: Create extension package
+        run: |
+          # Create build directory
+          mkdir -p build/french-popups
+
+          # Copy main extension files
+          cp manifest.json build/french-popups/
+          cp popup.html build/french-popups/
+          cp popup.js build/french-popups/
+          cp popup.css build/french-popups/
+          cp content.js build/french-popups/
+          cp content.css build/french-popups/
+          cp dict.js build/french-popups/
+          cp background.js build/french-popups/
+          cp README.md build/french-popups/
+          cp LICENSE build/french-popups/
+          cp LICENSE-DICTIONARIES build/french-popups/
+          cp privacy-policy.md build/french-popups/
+
+          # Copy icons
+          mkdir -p build/french-popups/icons
+          cp -r icons/* build/french-popups/icons/
+
+          # Copy generated dictionary data (excluding scripts)
+          mkdir -p build/french-popups/data
+          cp data/*.u8 build/french-popups/data/ 2>/dev/null || true
+          cp data/*.idx build/french-popups/data/ 2>/dev/null || true
+
+          # Create zip file
+          cd build
+          zip -r ../french-popups-${{ steps.tag_version.outputs.VERSION }}.zip french-popups/
+          cd ..
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: french-popups-${{ steps.tag_version.outputs.VERSION }}.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
