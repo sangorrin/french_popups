@@ -434,7 +434,8 @@ class Dictionary {
             if (entry && this.isValidPluralTransformation(normalizedWord, entry.headword, entry.pos)) {
               // Valid transformation!
               entry.searchedForm = normalizedWord;
-              entry.inflectionNote = this.getInflectionNote(normalizedWord, entry.headword);
+              entry.inflectionNote = this.getInflectionNote(normalizedWord, entry.headword, entry.pronunciation);
+              entry.pronunciation = null; // Clear pronunciation since we don't have IPA for the guessed form
               console.log('[Dict] Validated plural form - POS:', entry.pos);
               return entry;
             } else {
@@ -458,8 +459,9 @@ class Dictionary {
 
                 if (entry && this.isValidFeminineTransformation(candidate, entry.headword, entry.pos, entry.gender)) {
                   entry.searchedForm = normalizedWord;
-                  entry.inflectionNote = this.getInflectionNote(normalizedWord, entry.headword);
+                  entry.inflectionNote = this.getInflectionNote(normalizedWord, entry.headword, entry.pronunciation);
                   entry.gender = 'f'; // Mark as feminine since we found it as a feminine form
+                  entry.pronunciation = null; // Clear pronunciation since we don't have IPA for the guessed form
                   console.log('[Dict] Validated feminine-to-masculine from plural form - POS:', entry.pos);
                   return entry;
                 }
@@ -490,8 +492,9 @@ class Dictionary {
             if (entry && this.isValidFeminineTransformation(normalizedWord, entry.headword, entry.pos, entry.gender)) {
               // Valid transformation!
               entry.searchedForm = normalizedWord;
-              entry.inflectionNote = this.getFeminineInflectionNote(normalizedWord, entry.headword);
+              entry.inflectionNote = this.getFeminineInflectionNote(normalizedWord, entry.headword, entry.pronunciation);
               entry.gender = 'f'; // Mark as feminine since we found it as a feminine form
+              entry.pronunciation = null; // Clear pronunciation since we don't have IPA for the guessed form
               console.log('[Dict] Validated feminine form - POS:', entry.pos, 'Gender:', entry.gender);
               return entry;
             } else {
@@ -1106,36 +1109,40 @@ class Dictionary {
   /**
    * Get inflection note for feminine forms
    */
-  getFeminineInflectionNote(feminineForm, masculineForm) {
-    return `feminine of "${masculineForm}"`;
+  getFeminineInflectionNote(feminineForm, masculineForm, pronunciation) {
+    let note = `feminine of "${masculineForm}"`;
+    if (pronunciation) {
+      note += ` [${pronunciation}]`;
+    }
+    return note;
   }
 
   /**
    * Get a note explaining the inflection
    */
-  getInflectionNote(searchedForm, baseForm) {
+  getInflectionNote(searchedForm, baseForm, pronunciation) {
+    let note;
     if (searchedForm.endsWith('s') && !baseForm.endsWith('s')) {
-      return `plural of "${baseForm}"`;
+      note = `plural of "${baseForm}`;
+    } else if (searchedForm.endsWith('aux') && baseForm.endsWith('al')) {
+      note = `plural of "${baseForm}`;
+    } else if (searchedForm.endsWith('aux') && baseForm.endsWith('au')) {
+      note = `plural of "${baseForm}`;
+    } else if (searchedForm.endsWith('aux') && baseForm.endsWith('ail')) {
+      note = `plural of "${baseForm}`;
+    } else if (searchedForm.endsWith('eaux') && baseForm.endsWith('eau')) {
+      note = `plural of "${baseForm}`;
+    } else if (searchedForm.endsWith('eux') && baseForm.endsWith('eu')) {
+      note = `plural of "${baseForm}`;
+    } else if (searchedForm.endsWith('oux') && baseForm.endsWith('ou')) {
+      note = `plural of "${baseForm}`;
+    } else {
+      note = `inflected form of "${baseForm}"`;
     }
-    if (searchedForm.endsWith('aux') && baseForm.endsWith('al')) {
-      return `plural of "${baseForm}"`;
+    if (pronunciation) {
+      note += ` [${pronunciation}]`;
     }
-    if (searchedForm.endsWith('aux') && baseForm.endsWith('au')) {
-      return `plural of "${baseForm}"`;
-    }
-    if (searchedForm.endsWith('aux') && baseForm.endsWith('ail')) {
-      return `plural of "${baseForm}"`;
-    }
-    if (searchedForm.endsWith('eaux') && baseForm.endsWith('eau')) {
-      return `plural of "${baseForm}"`;
-    }
-    if (searchedForm.endsWith('eux') && baseForm.endsWith('eu')) {
-      return `plural of "${baseForm}"`;
-    }
-    if (searchedForm.endsWith('oux') && baseForm.endsWith('ou')) {
-      return `plural of "${baseForm}"`;
-    }
-    return `inflected form of "${baseForm}"`;
+    return note;
   }
 
   /**
