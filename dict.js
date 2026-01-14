@@ -270,28 +270,6 @@ class Dictionary {
   }
 
   /**
-   * Strip pronoun from IPA pronunciation
-   * Example: \ʒə li\ -> \li\, \[il/ɛl/ɔ̃] li\ -> \li\
-   */
-  stripPronounFromIPA(ipa, fullForm) {
-    if (!ipa || !fullForm) return ipa;
-
-    // Remove the backslashes
-    let cleaned = ipa.replace(/\\/g, '');
-
-    // Remove pronoun patterns at the beginning
-    // Patterns: ʒə, ty, il/ɛl/ɔ̃, [il/ɛl/ɔ̃], nu, vu, etc.
-    cleaned = cleaned.replace(/^(ʒə|ty|nu|vu|kə\s*ʒə|kə\s*ty|kə\s*nu|kə\s*vu)\s+/, '');
-    cleaned = cleaned.replace(/^k‿\[[^\]]+\]\s+/, ''); // qu'il/elle/on
-    cleaned = cleaned.replace(/^\[[^\]]+\]\s+/, ''); // [il/ɛl/ɔ̃]
-
-    // Also remove reflexive pronouns at the start if present
-    cleaned = cleaned.replace(/^(mə|tə|sə|s‿)\s*/, '');
-
-    return '\\' + cleaned + '\\';
-  }
-
-  /**
    * Format tense information for display
    * Example: "indicative;present" -> "indicative present"
    * Example: "imperative;present" -> "imperative"
@@ -515,9 +493,9 @@ class Dictionary {
           const tenseInfo = this.formatTenseInfo(conjugationResult.tenses, conjugationResult.fullForm);
           infinitiveEntry.inflectionNote = `conjugated form of "${conjugationResult.infinitive}" (${tenseInfo})`;
 
-          // Override pronunciation with conjugated form's IPA (stripped of pronouns)
+          // Override pronunciation with conjugated form's IPA
           if (conjugationResult.ipas) {
-            infinitiveEntry.pronunciation = this.stripPronounFromIPA(conjugationResult.ipas, conjugationResult.fullForm);
+            infinitiveEntry.pronunciation = conjugationResult.ipas;
           }
 
           console.log('[Dict] Successfully augmented infinitive entry with conjugation info');

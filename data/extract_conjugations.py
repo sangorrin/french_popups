@@ -9,6 +9,7 @@ conjugated_form<TAB>infinitive<TAB>tense(s)<TAB>ipa(s)<TAB>full_form
 """
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -81,8 +82,20 @@ def extract_conjugations(jsonl_path, output_u8, output_idx):
                 # Join tenses with semicolon
                 tenses = ';'.join(tags) if tags else ''
 
+                # Process IPAs: remove backslashes and extract only the conjugated verb part
+                processed_ipas = []
+                for ipa in ipas:
+                    # Remove backslashes from beginning and end
+                    cleaned = ipa.strip('\\')
+                    # Split by space and liaison character '‿'
+                    parts = re.split(r'[\s‿]+', cleaned)
+                    if parts:
+                        # Take the last part which is the conjugated verb's IPA
+                        conjugated_verb_ipa = parts[-1]
+                        processed_ipas.append(conjugated_verb_ipa)
+
                 # Join IPAs with semicolon
-                ipa_str = ';'.join(ipas) if ipas else ''
+                ipa_str = ';'.join(processed_ipas) if processed_ipas else ''
 
                 # Full form is the complete conjugation as it appears
                 full_form = form
