@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0-only
+// Copyright (C) 2026 sangorrin
+
 // Popup menu logic
 const languageSelect = document.getElementById('language-select');
 const statusDot = document.getElementById('status-dot');

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0-only
+// Copyright (C) 2026 sangorrin
+
 /**
  * Dictionary Lookup Module
  * Handles loading and searching French dictionary files

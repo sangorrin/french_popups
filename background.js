@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0-only
+// Copyright (C) 2026 sangorrin
+
 /**
  * Background Service Worker
  * Handles extension lifecycle and coordination

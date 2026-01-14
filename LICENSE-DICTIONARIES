@@ -1,0 +1,83 @@
+# Dictionary Data Licenses and Credits
+
+This extension uses freely available dictionary data from two exceptional sources. We are deeply grateful to the maintainers and contributors of these projects for their tireless effort in making this invaluable linguistic data freely available to the public.
+
+## 1. WikDict - Bilingual Dictionaries (fra-*.u8 files)
+
+**Source:** [WikDict](https://download.wikdict.com/)
+
+**Data Format:** Compressed bilingual dictionary files in TEI (Text Encoding Initiative) XML format
+
+**Supported Language Pairs:**
+- French to English (fra-eng)
+- French to Spanish (fra-spa)
+- French to German (fra-deu)
+- French to Italian (fra-ita)
+- French to Portuguese (fra-por)
+- French to Dutch (fra-nld)
+- French to Russian (fra-rus)
+- French to Japanese (fra-jpn)
+- French to Chinese (fra-zho)
+- French to Polish (fra-pol)
+- French to Turkish (fra-tur)
+- French to Swedish (fra-swe)
+- French to Norwegian (fra-nor)
+- French to Danish (fra-dan)
+- French to Finnish (fra-fin)
+- French to Greek (fra-ell)
+- French to Latin (fra-lat)
+- French to Lithuanian (fra-lit)
+- French to Bulgarian (fra-bul)
+- French to Catalan (fra-cat)
+- French to Czech (fra-ces)
+- French to Irish (fra-gle)
+- French to Indonesian (fra-ind)
+
+**License:** These dictionaries are derived from Wiktionary and are released under the [Creative Commons Attribution-ShareAlike License](https://creativecommons.org/licenses/by-sa/3.0/)
+
+**Credits:** We thank the WikDict project for providing an excellent source of free, high-quality bilingual dictionary data. The project's commitment to accessibility and open knowledge has been invaluable to this extension.
+
+## 2. Wiktextract - French Verb Conjugations (fra.u8 file)
+
+**Source:** [Kaikki.org](https://kaikki.org/) (Wiktionary extracts)
+
+**Data Format:** JSONL (JSON Lines) containing complete French verb conjugations with:
+- Infinitive forms
+- All tenses (indicative, subjunctive, conditional, imperative)
+- All persons and numbers
+- IPA pronunciations
+- Grammatical annotations
+
+**License:** This data is extracted from Wiktionary and is released under the [Creative Commons Attribution-ShareAlike License](https://creativecommons.org/licenses/by-sa/3.0/)
+
+**Credits:** We extend our sincere gratitude to:
+- The **Kaikki.org project** for providing clean, accessible extracts of Wiktionary data
+- The **Wiktextract developers** for their excellent extraction and processing tools
+- All **Wiktionary contributors** who have painstakingly added and verified millions of verb conjugations
+
+Their dedication to creating free, open knowledge has made this extension possible.
+
+## Acknowledgments
+
+We would like to express our deepest appreciation to the entire open-source lexicography community. The creation and maintenance of comprehensive, accurate dictionary data is a monumental task that requires:
+
+- **Years of careful curation** by linguists and language enthusiasts
+- **Continuous updates** to reflect modern language usage
+- **International collaboration** across languages and cultures
+- **Technical expertise** to structure, format, and optimize data
+- **Unwavering commitment** to keeping knowledge free and accessible
+
+Without these freely available resources, language learning tools like this extension would not be possible. We are honored to be able to use and redistribute this data in accordance with its open licenses.
+
+## License Compliance
+
+This extension respects the open licenses of its data sources and:
+- Provides proper attribution to WikDict and Kaikki.org
+- Makes available the source data and processing scripts
+- Allows users to understand where their linguistic data comes from
+- Encourages contributions back to the original projects
+
+If you find value in the dictionaries provided by this extension, please consider supporting the original projects at:
+- https://download.wikdict.com/
+- https://kaikki.org/
+- https://www.wiktionary.org/

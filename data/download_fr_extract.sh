@@ -1,4 +1,7 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-2.0-only
+# Copyright (C) 2026 sangorrin
+
 # Download and extract the French dictionary from kaikki.org
 # This includes verb conjugations and other grammatical forms
 
