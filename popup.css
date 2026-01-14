@@ -140,28 +140,3 @@ main {
   transform: translateY(0);
   box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
 }
-
-.info {
-  padding: 12px;
-  background: #e8f4fd;
-  border-left: 4px solid #3498db;
-  border-radius: 4px;
-}
-
-.info p {
-  font-size: 13px;
-  color: #2980b9;
-  line-height: 1.5;
-}
-
-footer {
-  padding: 16px 24px;
-  background: #f8f9fa;
-  border-top: 1px solid #e0e6ed;
-  text-align: center;
-}
-
-footer .version {
-  font-size: 11px;
-  color: #95a5a6;
-}
