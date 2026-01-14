@@ -14,7 +14,19 @@ conjugated_form<TAB>infinitive<TAB>tense(s)<TAB>ipa(s)<TAB>full_form
 import json
 import re
 import sys
+import unicodedata
 from pathlib import Path
+
+def normalize_text(text):
+    """Normalize text: strip whitespace, apply NFC Unicode normalization, normalize apostrophes."""
+    if not text:
+        return ""
+    # Strip and normalize to NFC (canonical composition)
+    normalized = unicodedata.normalize('NFC', text.strip())
+    # Normalize apostrophes to curly apostrophe (U+2019) to match main dictionary format
+    normalized = normalized.replace("'", '\u2019')  # Straight apostrophe -> curly
+    normalized = normalized.replace('\u2018', '\u2019')  # Left single quote -> curly apostrophe
+    return normalized
 
 def extract_conjugations(jsonl_path, output_u8, output_idx):
     """
@@ -50,7 +62,7 @@ def extract_conjugations(jsonl_path, output_u8, output_idx):
                 'forms' not in entry):
                 continue
 
-            infinitive = entry.get('word', '')
+            infinitive = normalize_text(entry.get('word', ''))
             if not infinitive:
                 continue
 
@@ -77,10 +89,7 @@ def extract_conjugations(jsonl_path, output_u8, output_idx):
                 # Extract the conjugated word (remove pronouns for indexing)
                 # e.g., "je lis" -> "lis", "tu lis" -> "lis"
                 conjugated_form = form.split()[-1] if ' ' in form else form
-
-                # Remove special characters like quotes
-                conjugated_form = conjugated_form.replace('\u2019', "'").replace('\u2018', "'")
-                conjugated_form = conjugated_form.replace('\u201c', '"').replace('\u201d', '"')
+                conjugated_form = normalize_text(conjugated_form)
 
                 # Join tenses with semicolon
                 tenses = ';'.join(tags) if tags else ''
@@ -100,8 +109,8 @@ def extract_conjugations(jsonl_path, output_u8, output_idx):
                 # Join IPAs with semicolon
                 ipa_str = ';'.join(processed_ipas) if processed_ipas else ''
 
-                # Full form is the complete conjugation as it appears
-                full_form = form
+                # Full form is the complete conjugation as it appears (normalized)
+                full_form = normalize_text(form)
 
                 # Create tab-separated entry
                 entry_line = f"{conjugated_form}\t{infinitive}\t{tenses}\t{ipa_str}\t{full_form}\n"
