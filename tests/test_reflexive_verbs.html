@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Reflexive Verbs</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.8;
+            font-size: 18px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            background: #ecf0f1;
+            padding: 10px;
+            border-left: 4px solid #3498db;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-word {
+            font-weight: 600;
+            color: #7c3aed;
+        }
+        .base-form {
+            color: #0891b2;
+        }
+        .reflexive-form {
+            color: #dc2626;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        li:last-child {
+            border-bottom: none;
+        }
+        .instruction {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .note {
+            color: #64748b;
+            font-style: italic;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Reflexive Verbs</h1>
+    <p>Hover over the <span class="reflexive-form">red words</span> to test reflexive verb handling and stripping of reflexive pronouns (se, s', m', t', n').</p>
+
+    <div class="test-section">
+        <h2>1. Reflexive Conjugations - Present Tense</h2>
+        <p class="note">These are conjugated reflexive verbs (present tense) that should resolve to their base infinitive forms.</p>
+        <ul>
+            <li>Infinitive: <span class="test-word base-form">s'appeler</span> | Conjugation: <span class="test-word reflexive-form">s'appelle</span> (3rd person singular)</li>
+            <li>Infinitive: <span class="test-word base-form">se souvenir</span> | Conjugation: <span class="test-word reflexive-form">se souvient</span> (3rd person singular)</li>
+            <li>Infinitive: <span class="test-word base-form">se parler</span> | Conjugation: <span class="test-word reflexive-form">se parle</span> (3rd person singular)</li>
+            <li>Infinitive: <span class="test-word base-form">s'arrêter</span> | Conjugation: <span class="test-word reflexive-form">s'arrête</span> (3rd person singular)</li>
+            <li>Infinitive: <span class="test-word base-form">se terminer</span> | Conjugation: <span class="test-word reflexive-form">se termine</span> (3rd person singular)</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Different Reflexive Pronouns</h2>
+        <p class="note">Testing different reflexive pronouns that should be stripped.</p>
+        <ul>
+            <li><span class="test-word reflexive-form">m'appelle</span> (me + appelle, 1st person singular) → base: appeler</li>
+            <li><span class="test-word reflexive-form">t'appelles</span> (te + appelles, 2nd person singular) → base: appeler</li>
+            <li><span class="test-word reflexive-form">s'appelle</span> (se + appelle, 3rd person singular) → base: appeler</li>
+            <li><span class="test-word reflexive-form">se parle</span> (se + parle) → base: parler</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Complete Sentences - Reflexive Verbs in Context</h2>
+        <p>
+            Je <span class="test-word reflexive-form">m'appelle</span> Jean et ma sœur <span class="test-word reflexive-form">s'appelle</span> Marie.
+            Tu <span class="test-word reflexive-form">t'appelles</span> comment?
+        </p>
+        <p>
+            Le groupe <span class="test-word reflexive-form">se souvient</span> de cette journée importante.
+            Les gens <span class="test-word reflexive-form">se souviennent</span> de cet événement historique.
+        </p>
+        <p>
+            Elles <span class="test-word reflexive-form">se parlent</span> tous les jours.
+            Le film <span class="test-word reflexive-form">s'arrête</span> à midi.
+            La réunion <span class="test-word reflexive-form">se termine</span> à 18 heures.
+        </p>
+        <p>
+            Les gens <span class="test-word reflexive-form">se demandent</span> pourquoi c'est important.
+            Tu <span class="test-word reflexive-form">te souviens</span> de cette histoire?
+            Nous <span class="test-word reflexive-form">nous rencontrons</span> demain.
+        </p>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Reflexive Past Participles (Feminine)</h2>
+        <p class="note">Reflexive verbs in feminine past participle form with reflexive pronouns that should resolve correctly.</p>
+        <ul>
+            <li><span class="test-word reflexive-form">s'appelée</span> (past participle, feminine singular)</li>
+            <li><span class="test-word reflexive-form">s'souvenueе</span> (past participle, feminine singular) → base: souvenir</li>
+            <li><span class="test-word reflexive-form">s'arrêtée</span> (past participle, feminine singular)</li>
+            <li><span class="test-word reflexive-form">s'appelées</span> (past participle, feminine plural)</li>
+            <li><span class="test-word reflexive-form">s'souvenues</span> (past participle, feminine plural)</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Mixed Context - Reflexive and Feminine</h2>
+        <p>
+            Une femme <span class="test-word reflexive-form">s'appelée</span> Sophie <span class="test-word reflexive-form">se souvient</span> d'une grande victoire.
+            Les actrices <span class="test-word reflexive-form">s'appelées</span> à la scène <span class="test-word reflexive-form">se souviennent</span> de ce moment.
+        </p>
+    </div>
+
+    <div class="instruction">
+        <strong>Instructions:</strong>
+        <ul style="margin-top: 10px;">
+            <li>Reload the extension in Chrome (right-click extension → Reload)</li>
+            <li>Hover over each red reflexive word</li>
+            <li>Verify that the popup shows:</li>
+            <ul style="margin-top: 8px;">
+                <li>The base infinitive without the reflexive pronoun (e.g., "appeler" not "s'appelle")</li>
+                <li>For conjugations: an inflection note showing the tense (e.g., "indicative present")</li>
+                <li>For feminine past participles: note that they resolve to their masculine forms</li>
+                <li>The definition from the base verb in the main dictionary</li>
+            </ul>
+            <li>Test conjugated forms with different pronouns (m', t', s', etc.)</li>
+            <li>Test reflexive past participles in feminine form (s'appelée, s'souvenue)</li>
+        </ul>
+    </div>
+</body>
+</html>

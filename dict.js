@@ -503,7 +503,55 @@ class Dictionary {
     // If still not found, try conjugation lookup
     if (!indexEntry) {
       console.log('[Dict] Trying conjugation lookup...');
-      const conjugationResult = await this.lookupConjugation(normalizedWord);
+
+      // First try direct conjugation lookup
+      let conjugationResult = await this.lookupConjugation(normalizedWord);
+
+      // If not found and word ends with 'e' (possible feminine form), try masculine form
+      if (!conjugationResult && normalizedWord.endsWith('e')) {
+        console.log('[Dict] Conjugation lookup failed, trying to convert feminine to masculine...');
+        const masculineCandidates = this.getFeminineCandidates(normalizedWord);
+
+        for (const candidate of masculineCandidates) {
+          console.log('[Dict] Trying conjugation lookup with masculine candidate:', candidate);
+          conjugationResult = await this.lookupConjugation(candidate);
+          if (conjugationResult) {
+            console.log('[Dict] Found conjugation with masculine form:', candidate);
+            break;
+          }
+        }
+      }
+
+      // If still not found and word ends with 's' (possible plural), try singular forms
+      if (!conjugationResult && normalizedWord.endsWith('s')) {
+        console.log('[Dict] Conjugation lookup failed, trying to convert plural to singular...');
+        const singularCandidates = this.getPluralCandidates(normalizedWord);
+
+        for (const candidate of singularCandidates) {
+          console.log('[Dict] Trying conjugation lookup with singular candidate:', candidate);
+          conjugationResult = await this.lookupConjugation(candidate);
+          if (conjugationResult) {
+            console.log('[Dict] Found conjugation with singular form:', candidate);
+            break;
+          }
+
+          // If singular still not found and it ends with 'e', try feminine-to-masculine
+          if (!conjugationResult && candidate.endsWith('e')) {
+            console.log('[Dict] Trying feminine-to-masculine on plural candidate:', candidate);
+            const feminineToMasculine = this.getFeminineCandidates(candidate);
+            for (const mascCandidate of feminineToMasculine) {
+              console.log('[Dict] Trying conjugation with masculine form from plural:', mascCandidate);
+              conjugationResult = await this.lookupConjugation(mascCandidate);
+              if (conjugationResult) {
+                console.log('[Dict] Found conjugation with masculine form from plural:', mascCandidate);
+                break;
+              }
+            }
+          }
+
+          if (conjugationResult) break;
+        }
+      }
 
       if (conjugationResult) {
         console.log('[Dict] Found conjugation, looking up infinitive:', conjugationResult.infinitive);
