@@ -459,6 +459,7 @@ class Dictionary {
                 if (entry && this.isValidFeminineTransformation(candidate, entry.headword, entry.pos, entry.gender)) {
                   entry.searchedForm = normalizedWord;
                   entry.inflectionNote = this.getInflectionNote(normalizedWord, entry.headword);
+                  entry.gender = 'f'; // Mark as feminine since we found it as a feminine form
                   console.log('[Dict] Validated feminine-to-masculine from plural form - POS:', entry.pos);
                   return entry;
                 }
@@ -490,6 +491,7 @@ class Dictionary {
               // Valid transformation!
               entry.searchedForm = normalizedWord;
               entry.inflectionNote = this.getFeminineInflectionNote(normalizedWord, entry.headword);
+              entry.gender = 'f'; // Mark as feminine since we found it as a feminine form
               console.log('[Dict] Validated feminine form - POS:', entry.pos, 'Gender:', entry.gender);
               return entry;
             } else {
