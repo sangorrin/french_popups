@@ -1123,19 +1123,19 @@ class Dictionary {
   getInflectionNote(searchedForm, baseForm, pronunciation) {
     let note;
     if (searchedForm.endsWith('s') && !baseForm.endsWith('s')) {
-      note = `plural of "${baseForm}`;
+      note = `plural of "${baseForm}"`;
     } else if (searchedForm.endsWith('aux') && baseForm.endsWith('al')) {
-      note = `plural of "${baseForm}`;
+      note = `plural of "${baseForm}"`;
     } else if (searchedForm.endsWith('aux') && baseForm.endsWith('au')) {
-      note = `plural of "${baseForm}`;
+      note = `plural of "${baseForm}"`;
     } else if (searchedForm.endsWith('aux') && baseForm.endsWith('ail')) {
-      note = `plural of "${baseForm}`;
+      note = `plural of "${baseForm}"`;
     } else if (searchedForm.endsWith('eaux') && baseForm.endsWith('eau')) {
-      note = `plural of "${baseForm}`;
+      note = `plural of "${baseForm}"`;
     } else if (searchedForm.endsWith('eux') && baseForm.endsWith('eu')) {
-      note = `plural of "${baseForm}`;
+      note = `plural of "${baseForm}"`;
     } else if (searchedForm.endsWith('oux') && baseForm.endsWith('ou')) {
-      note = `plural of "${baseForm}`;
+      note = `plural of "${baseForm}"`;
     } else {
       note = `inflected form of "${baseForm}"`;
     }
