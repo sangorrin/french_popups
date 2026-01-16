@@ -13,7 +13,29 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   min-width: 200px;
   max-width: 400px;
+  max-height: min(80vh, 500px);
+  overflow-y: auto;
+  overflow-x: hidden;
   animation: fadeIn 0.15s ease-out;
+}
+
+/* Webkit scrollbar styling (Chrome) */
+.french-popup::-webkit-scrollbar {
+  width: 8px;
+}
+
+.french-popup::-webkit-scrollbar-track {
+  background: #e8eef5; /* scrollbar background (same color as popup) */
+  border-radius: 4px;
+}
+
+.french-popup::-webkit-scrollbar-thumb {
+  background: #74a8e3; /* draggable scrollbar handle */
+  border-radius: 4px;
+}
+
+.french-popup::-webkit-scrollbar-thumb:hover {
+  background: #619bde;
 }
 
 /* Temporary wrapper elements for word detection */

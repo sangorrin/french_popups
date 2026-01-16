@@ -10,8 +10,10 @@ let isActive = false;
 let isFrenchPage = false;
 let currentPopup = null;
 const HOVER_DELAY = 400; // ms - delay before showing popup after mouse stops
+const HIDE_DELAY = 300; // ms - delay before hiding popup when mouse moves away
 const lastMouseStop = { x: 0, y: 0 };
 let mouseMoveTimer = null;
+let hidePopupTimer = null;
 
 /**
  * Initialize extension
@@ -94,8 +96,12 @@ function extractSampleWords(text, count) {
  */
 function attachHoverListeners() {
 
-  // Remove popup on scroll
-  document.addEventListener('scroll', () => {
+  // Remove popup on scroll (but not when scrolling inside the popup)
+  document.addEventListener('scroll', (e) => {
+    // Don't hide if scrolling inside the popup
+    if (currentPopup && currentPopup.contains(e.target)) {
+      return;
+    }
     hidePopup();
     clearTimeout(mouseMoveTimer);
   }, true);
@@ -115,16 +121,28 @@ function attachHoverListeners() {
     lastRawX = e.clientX;
     lastRawY = e.clientY;
 
-    // Hide any existing popup
-    hidePopup();
+    // Clear any pending hide timer
+    clearTimeout(hidePopupTimer);
     clearTimeout(mouseMoveTimer);
 
-    // Start timer for mousestop
-    mouseMoveTimer = setTimeout(() => {
-      lastMouseStop.x = e.clientX;
-      lastMouseStop.y = e.clientY;
-      handleMouseStop(e);
-    }, HOVER_DELAY);
+    // If popup exists and mouse is NOT over it, schedule hiding with delay
+    if (currentPopup && !currentPopup.contains(e.target)) {
+      hidePopupTimer = setTimeout(() => {
+        // Only hide if mouse is still not over the popup
+        if (currentPopup && !currentPopup.matches(':hover')) {
+          hidePopup();
+        }
+      }, HIDE_DELAY);
+    }
+
+    // Start timer for mousestop (but not if hovering over popup)
+    if (!currentPopup || !currentPopup.contains(e.target)) {
+      mouseMoveTimer = setTimeout(() => {
+        lastMouseStop.x = e.clientX;
+        lastMouseStop.y = e.clientY;
+        handleMouseStop(e);
+      }, HOVER_DELAY);
+    }
   });
 }
 
@@ -480,6 +498,7 @@ function getFollowingText(currentNode, allTextNodes) {
 
   return limitedWords.join(' ');
 }
+
 /**
  * Show translation popup
  */
@@ -521,26 +540,40 @@ async function showPopup(word, followingText, x, y) {
   let left = x + 10;
   let top = y + 10;
 
-  // Keep within viewport
-  if (left + rect.width > window.innerWidth) {
-    left = window.innerWidth - rect.width - 10;
+  // Keep within viewport with minimum 10px margins
+  if (left + rect.width > window.innerWidth - 10) {
+    left = Math.max(10, window.innerWidth - rect.width - 10);
   }
 
-  if (top + rect.height > window.innerHeight) {
+  // Calculate available space for smarter vertical positioning
+  const spaceBelow = window.innerHeight - y;
+  const spaceAbove = y;
+  const maxPopupHeight = Math.min(window.innerHeight * 0.8, 500);
+
+  if (rect.height > spaceBelow && spaceAbove > spaceBelow) {
+    // More space above, flip popup above cursor
     top = y - rect.height - 10;
+  } else if (top + rect.height > window.innerHeight - 10) {
+    // Ensure minimum 10px margin from bottom
+    top = Math.max(10, window.innerHeight - rect.height - 10);
   }
 
   currentPopup.style.left = `${left + window.scrollX}px`;
   currentPopup.style.top = `${top + window.scrollY}px`;
 
-
   // Keep popup visible on hover
   currentPopup.addEventListener('mouseenter', () => {
     clearTimeout(mouseMoveTimer);
+    clearTimeout(hidePopupTimer);
   });
 
   currentPopup.addEventListener('mouseleave', () => {
-    hidePopup();
+    // Delay hiding to allow moving back to popup
+    hidePopupTimer = setTimeout(() => {
+      if (currentPopup && !currentPopup.matches(':hover')) {
+        hidePopup();
+      }
+    }, HIDE_DELAY);
   });
 }
 
