@@ -15,6 +15,9 @@ const lastMouseStop = { x: 0, y: 0 };
 let mouseMoveTimer = null;
 let hidePopupTimer = null;
 
+// Word pattern: letters/numbers, optionally followed by apostrophes/periods/hyphens and more letters/numbers/periods/hyphens
+const WORD_REGEX = /[\p{L}\p{N}]+(?:['''.\-][\p{L}\p{N}.\-]+)*/u;
+
 /**
  * Initialize extension
  */
@@ -156,8 +159,6 @@ function getHitWord(e) {
   const hitElement = document.elementFromPoint(e.clientX, e.clientY);
   if (!hitElement) return null;
 
-  const wordRegex = /[\p{L}]+(?:['''][\p{L}]+)*/u;
-
   // Get text nodes from hit element
   const textNodes = [];
   const walker = document.createTreeWalker(
@@ -169,7 +170,7 @@ function getHitWord(e) {
 
   let node;
   while (node = walker.nextNode()) {
-    if (wordRegex.test(node.textContent)) {
+    if (WORD_REGEX.test(node.textContent)) {
       textNodes.push(node);
     }
   }
@@ -327,7 +328,7 @@ function getMinimalTextNode(textNode, e, hitElement) {
  */
 function extractWordAndContext(textNode, e, hitElement, allTextNodes) {
   const text = textNode.textContent;
-  const wordRegex = /[\p{L}]+(?:['''][\p{L}]+)*/gu;
+  const wordRegex = new RegExp(WORD_REGEX.source, 'gu');  // Add global flag for matching all words
 
   const words = text.match(wordRegex);
 
