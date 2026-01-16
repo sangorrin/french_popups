@@ -113,6 +113,11 @@ def extract_conjugations(jsonl_path, output_u8):
                         # Take the last part which is the conjugated verb's IPA
                         ipa_str = parts[-1]
 
+                # Validate that required fields are present before adding entry
+                # Don't accept entries missing form, infinitive, or tenses
+                if not conjugated_form or not infinitive or not tenses:
+                    continue
+
                 # Create tab-separated entry
                 entry_line = f"{conjugated_form}\t{infinitive}\t{tenses}\t{ipa_str}\n"
                 conjugations.append((conjugated_form.lower(), entry_line))
