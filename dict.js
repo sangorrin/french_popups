@@ -177,7 +177,7 @@ class Dictionary {
 
   /**
    * Binary search for conjugated form in conjugation index
-   * Returns the first matching entry (since there can be multiple)
+   * Since conjugations are deduplicated, each form appears exactly once
    */
   binarySearchConjugation(conjugatedForm) {
     if (!this.conjugationIndexCache || this.conjugationIndexCache.length === 0) {
@@ -205,17 +205,16 @@ class Dictionary {
   }
 
   /**
-   * Fetch conjugation entries from fra.u8 file
-   * Reads from offset until the conjugated form changes
+   * Fetch conjugation entry from fra.u8 file
+   * Since conjugations are deduplicated, each form appears exactly once
    */
   async fetchConjugationEntries(offset, conjugatedForm) {
     const u8Path = chrome.runtime.getURL('data/fra.u8');
-    const searchTerm = conjugatedForm.toLowerCase();
 
     try {
-      // Read a reasonable chunk (we'll read line by line)
-      // Most conjugated forms won't have more than 10-20 entries
-      const chunkSize = 10000; // Read 10KB at a time
+      // Read enough bytes to get one complete line
+      // Most conjugation entries are ~100-200 bytes
+      const chunkSize = 1024; // 1KB should be plenty for a single entry
       const response = await fetch(u8Path, {
         headers: {
           'Range': `bytes=${offset}-${offset + chunkSize - 1}`
@@ -223,32 +222,21 @@ class Dictionary {
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch conjugation entries: ${response.status}`);
+        throw new Error(`Failed to fetch conjugation entry: ${response.status}`);
       }
 
       const text = await response.text();
       const lines = text.split('\n');
-      const entries = [];
 
-      // Parse lines until we find a different conjugated form
-      for (const line of lines) {
-        if (!line.trim()) continue;
-
-        const parsed = this.parseConjugationEntry(line);
-        if (!parsed) continue;
-
-        // Stop when we encounter a different conjugated form
-        if (parsed.conjugatedForm.toLowerCase() !== searchTerm) {
-          break;
-        }
-
-        entries.push(parsed);
+      // Get the first line and parse it
+      if (lines.length === 0 || !lines[0].trim()) {
+        return null;
       }
 
-      // Return the first entry (most likely the standard form)
-      return entries.length > 0 ? entries[0] : null;
+      const parsed = this.parseConjugationEntry(lines[0]);
+      return parsed;
     } catch (error) {
-      console.error('[French Popups] Error fetching conjugation entries:', error);
+      console.error('[French Popups] Error fetching conjugation entry:', error);
       return null;
     }
   }
