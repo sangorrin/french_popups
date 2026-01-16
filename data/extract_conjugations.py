@@ -86,9 +86,14 @@ def extract_conjugations(jsonl_path, output_u8):
                 if 'multiword-construction' in tags:
                     continue
 
-                # Filter out the infinitive forms and participles as standalone entries
-                # (we want conjugated forms for lookup)
-                if tags == ['infinitive', 'present'] or tags == ['infinitive', 'past']:
+                # Filter out the infinitive forms.
+                if tags == ['infinitive', 'present']:
+                    continue
+
+                # Filter out if tags do not have at least one tense/mood tag
+                tense_tags = {'indicative', 'subjunctive', 'conditional', 'imperative',
+                              'participle', 'gerund', 'infinitive'}
+                if not any(tag in tense_tags for tag in tags):
                     continue
 
                 # Extract the conjugated word (remove pronouns for indexing)
