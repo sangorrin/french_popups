@@ -471,7 +471,6 @@ async function showPopup(word, followingText, x, y) {
 
   // Build HTML for all definitions
   let popupHTML = '';
-  let isFirstDefinition = true;
 
   // If we have a conjugation, show it first
   if (conjugationEntry) {
@@ -489,7 +488,6 @@ async function showPopup(word, followingText, x, y) {
         <div class="french-popup-translations">${formatTranslations(conjugationEntry.translations)}</div>
       </div>
     `;
-    isFirstDefinition = false;
   }
 
   // Then show all bilingual definitions
@@ -498,9 +496,8 @@ async function showPopup(word, followingText, x, y) {
       const entry = entries[i];
       const displayWord = entry.searchedForm ? entry.searchedForm : entry.headword;
 
-      // Only show the word for the first definition
-      const wordHTML = isFirstDefinition ? `<div class="french-popup-word">${escapeHtml(displayWord)}</div>` : '';
-      isFirstDefinition = false;
+      // Show the word for every definition
+      const wordHTML = `<div class="french-popup-word">${escapeHtml(displayWord)}</div>`;
 
       // Check if there are more definitions coming
       const hasMoreDefinitions = i < entries.length - 1;

@@ -45,7 +45,7 @@ class Dictionary {
         .map(line => {
           const [headword, offset, length] = line.split('\t');
           return {
-            headword: headword.toLowerCase(),
+            headword: headword,  // Keep as-is from index (acronyms preserved, others lowercase)
             offset: parseInt(offset, 10),
             length: parseInt(length, 10)
           };
@@ -98,6 +98,29 @@ class Dictionary {
   }
 
   /**
+   * Get search term for lookup
+   * If word is all capitals (acronym), keep it as-is
+   * If word has contraction with acronym after it (like "l'EST"), keep as-is
+   * Otherwise lowercase it for matching
+   */
+  getSearchTerm(word) {
+    // Check if word is all uppercase letters (acronym like "EST", "LIS")
+    if (word.length > 1 && word === word.toUpperCase() && /[A-Z]/.test(word)) {
+      return word; // Keep acronym as-is
+    }
+
+    // Check if word has a contraction with an acronym after it (like "l'EST")
+    const contractions = ['qu\u2019', 'l\u2019', 'd\u2019', 'c\u2019', 'j\u2019', 'm\u2019', 't\u2019', 'n\u2019', 's\u2019'];
+    for (const contraction of contractions) {
+      if (word.startsWith(contraction) && /[A-Z]/.test(word)) {
+        return word; // Keep contraction + acronym as-is
+      }
+    }
+
+    return word.toLowerCase(); // Lowercase everything else
+  }
+
+  /**
    * Binary search for headword in sorted index
    */
   binarySearch(headword) {
@@ -105,7 +128,7 @@ class Dictionary {
       return null;
     }
 
-    const searchTerm = headword.toLowerCase();
+    const searchTerm = this.getSearchTerm(headword);
     let left = 0;
     let right = this.indexCache.length - 1;
 
@@ -134,7 +157,7 @@ class Dictionary {
       return [];
     }
 
-    const searchTerm = headword.toLowerCase();
+    const searchTerm = this.getSearchTerm(headword);
     let left = 0;
     let right = this.indexCache.length - 1;
     let foundIndex = -1;
@@ -407,10 +430,12 @@ class Dictionary {
       return null;
     }
 
-    // Normalize the word for lookup (NFC normalization + lowercase + apostrophe normalization)
+    // Normalize the word for lookup (NFC normalization + apostrophe normalization)
     // Convert straight apostrophes (') to curly apostrophes (') to match dictionary format
-    let normalizedWord = word.normalize('NFC').toLowerCase();
+    let normalizedWord = word.normalize('NFC');
     normalizedWord = normalizedWord.replace(/'/g, '\u2019');  // U+0027 -> U+2019
+    // Apply smart casing: keep acronyms, lowercase everything else
+    normalizedWord = this.getSearchTerm(normalizedWord);
     console.log('[Dict] Normalized word:', normalizedWord);
 
     // If we have following text, try to find multi-word expressions first
@@ -592,8 +617,10 @@ class Dictionary {
     }
 
     // Normalize the word for lookup
-    let normalizedWord = word.normalize('NFC').toLowerCase();
+    let normalizedWord = word.normalize('NFC');
     normalizedWord = normalizedWord.replace(/'/g, '\u2019');
+    // Apply smart casing: keep acronyms, lowercase everything else
+    normalizedWord = this.getSearchTerm(normalizedWord);
     console.log('[Dict] Normalized word:', normalizedWord);
 
     // If we have following text, try to find multi-word expressions first
@@ -661,6 +688,18 @@ class Dictionary {
           }
         }
         if (entries.length > 0) return entries;
+      }
+    }
+
+    // If still not found, try removing contractions
+    const contractionResult = this.tryRemoveContraction(normalizedWord);
+    if (contractionResult) {
+      console.log('[Dict] Trying after removing contraction:', contractionResult.prefix, '+', contractionResult.word);
+
+      // Try lookupAll with the de-contracted word (recursive call will check both dictionaries)
+      const decontractedEntries = await this.lookupAll(contractionResult.word, followingText);
+      if (decontractedEntries.length > 0) {
+        return decontractedEntries;
       }
     }
 

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acronyms Test - French Popups</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            background: #fafafa;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #0066cc;
+            margin-top: 30px;
+            border-left: 4px solid #007bff;
+            padding-left: 10px;
+        }
+        .test-section {
+            margin: 15px 0;
+            padding: 15px;
+            background: #fff;
+            border-left: 4px solid #28a745;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .acronym {
+            color: #0066cc;
+            font-weight: bold;
+            text-decoration: underline;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .acronym:hover {
+            background-color: #e8f0ff;
+        }
+        .definition {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        .test-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .test-item {
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border-left: 3px solid #007bff;
+        }
+        .test-item p {
+            margin: 5px 0;
+        }
+        .intro-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .intro-box strong {
+            color: #1976D2;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 French Acronyms Test Suite</h1>
+
+    <div class="intro-box">
+        <strong>Purpose:</strong> Test the extension's ability to recognize and look up all-uppercase French acronyms with proper definitions.
+        <br><strong>Expected behavior:</strong> Popup should display the correct definition for each acronym.
+        <br><strong>Total acronyms tested:</strong> 30 (20 random + 10 with l' contractions)
+    </div>
+
+    <h2>Part 1: Random Acronyms (20 samples)</h2>
+    <p>Hover over each acronym to test lookup:</p>
+    <div class="test-list">
+        <div class="test-item">
+            <p>Hover: <span class="acronym">SRB</span></p>
+            <div class="definition">bus rapid transit</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">NEDEX</span></p>
+            <div class="definition">explosive ordnance disposal</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">GFD</span></p>
+            <div class="definition">demand-based management</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">TAC</span></p>
+            <div class="definition">total allowable catch</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">GIB</span></p>
+            <div class="definition">building management system</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">DSF</span></p>
+            <div class="definition">remotely-operated vehicle</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">ADA</span></p>
+            <div class="definition">adenosine deaminase</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">REP</span></p>
+            <div class="definition">pressurized water reactor</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">AQ</span></p>
+            <div class="definition">quality assurance</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">PGI</span></p>
+            <div class="definition">enterprise resource planning application</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">URCE</span></p>
+            <div class="definition">certified emission reduction</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">MIR</span></p>
+            <div class="definition">infrared montgolfiere</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">CQQCOQP</span></p>
+            <div class="definition">The Five Ws</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">PMA</span></p>
+            <div class="definition">assisted reproductive technology</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">PEC</span></p>
+            <div class="definition">politically exposed person</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">TBB</span></p>
+            <div class="definition">straight-through processing</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">SREC</span></p>
+            <div class="definition">kinetic energy recovery system</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">BDP</span></p>
+            <div class="definition">bottom of the pyramid</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">IVG</span></p>
+            <div class="definition">abortion; termination</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">MCM</span></p>
+            <div class="definition">multilevel cell memory</div>
+        </div>
+    </div>
+
+    <h2>Part 2: Acronyms with l' Contraction (vowel-starting)</h2>
+    <p>These test the extension's ability to handle contractions like "l'EST" or "l'URCE":</p>
+    <div class="test-list">
+        <div class="test-item">
+            <p>Hover: <span class="acronym">l'IAM</span></p>
+            <div class="definition">malicious call identification</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">l'EST</span></p>
+            <div class="definition">sensitive site exploitation</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">l'ALVF</span></p>
+            <div class="definition">railway gun</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">l'OPEX</span></p>
+            <div class="definition">operational expenditure</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">l'USA</span></p>
+            <div class="definition">United States of America</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">l'IVG</span></p>
+            <div class="definition">abortion; termination</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">l'OTP</span></p>
+            <div class="definition">one-time password</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">l'AFU</span></p>
+            <div class="definition">emergency brake assist</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">l'AEL</span></p>
+            <div class="definition">leveraged buyout</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">l'ISBN</span></p>
+            <div class="definition">International Standard Book Number</div>
+        </div>
+    </div>
+
+    <h2>Test Results Checklist</h2>
+    <div class="test-section">
+        <ul style="line-height: 1.8;">
+            <li>✓ All acronyms are looked up correctly</li>
+            <li>✓ Definitions are accurate (not just acronym restatement)</li>
+            <li>✓ Pronunciation and part of speech display correctly</li>
+            <li>✓ l' contraction handling works (removes l' and looks up acronym)</li>
+            <li>✓ All uppercase acronyms are preserved (not lowercased unnecessarily)</li>
+            <li>✓ No heuristics applied to acronyms (no plural/feminine conversion)</li>
+        </ul>
+    </div>
+
+    <script>
+        console.log('[Test] Acronyms test suite loaded - 30 acronyms ready for testing');
+    </script>
+</body>
+</html>
+    </div>
+
+    <h2>Test 3: Three-letter acronyms</h2>
+    <div class="test-section">
+        <p>Hover over <span class="acronym">ACD</span> (analytical chemistry definition)</p>
+        <div class="description">Entry: ACD - n, f - a.se.de - differential scanning calorimetry;DSC</div>
+    </div>
+
+    <h2>Test 4: Four-letter acronyms</h2>
+    <div class="test-section">
+        <p>Hover over <span class="acronym">AAAA</span></p>
+        <div class="description">Entry: AAAA - n, m - a.a.a.a - AAAA</div>
+    </div>
+
+    <h2>Test 5: Acronyms with hyphens</h2>
+    <div class="test-section">
+        <p>Hover over <span class="acronym">AAAA-MM-JJ</span> (date format)</p>
+        <div class="description">Entry: AAAA-MM-JJ - n - (no pronunciation) - YYYY-MM-DD</div>
+    </div>
+
+    <h2>Test 6: Acronyms without spaces (8 letters)</h2>
+    <div class="test-section">
+        <p>Hover over <span class="acronym">AAAAMMJJ</span> (date format)</p>
+        <div class="description">Entry: AAAAMMJJ - n - (no pronunciation) - YYYYMMDD</div>
+    </div>
+
+    <h2>Test 7: More acronyms to test</h2>
+    <div class="test-section">
+        <p>Try hovering over these acronyms:</p>
+        <ul>
+            <li><span class="acronym">AAS</span> - amino acid sequencing</li>
+            <li><span class="acronym">ABI</span> - automated biometric identification</li>
+            <li><span class="acronym">ACAB</span> - a common slang acronym</li>
+            <li><span class="acronym">ACID</span> - acid</li>
+            <li><span class="acronym">ACL</span> - anterior cruciate ligament</li>
+        </ul>
+    </div>
+
+    <h2>Expected Results</h2>
+    <div class="test-section">
+        <p>✓ All acronyms should be looked up as-is (not lowercased)</p>
+        <p>✓ The popup should display the correct definitions</p>
+        <p>✓ Pronunciation and part of speech should be visible</p>
+        <p>✓ Acronyms with hyphens or numbers should work correctly</p>
+    </div>
+
+    <script>
+        // Log when page loads
+        console.log('[Test] Acronyms test page loaded');
+    </script>
+</body>
+</html>

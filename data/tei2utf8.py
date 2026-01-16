@@ -39,6 +39,19 @@ def normalize_text(text: Optional[str]) -> str:
     return normalized
 
 
+def get_index_key(headword: str) -> str:
+    """Get the key for indexing.
+    - Keep acronyms (all uppercase) as-is
+    - Lowercase everything else for case-insensitive lookup
+    """
+    if headword and len(headword) > 1 and headword == headword.upper() \
+        and any(c.isupper() for c in headword):
+        # It's an acronym, keep it as-is
+        return headword
+    # Everything else gets lowercased
+    return headword.lower()
+
+
 def escape_field(text: str) -> str:
     """Escape special characters for TSV format: tab, newline, carriage return, backslash."""
     if not text:
@@ -186,9 +199,9 @@ def process_tei_file(tei_path: Path) -> Tuple[int, int]:
                 # Calculate line length in bytes
                 length = u8_file.tell() - offset
 
-                # Add to index (lowercase headword for case-insensitive lookup)
-                headword_lower = headword.lower()
-                index_data.append((headword_lower, offset, length))
+                # Add to index (keep acronyms, lowercase everything else)
+                headword_index_key = get_index_key(headword)
+                index_data.append((headword_index_key, offset, length))
 
                 entries_written += 1
 
@@ -210,9 +223,9 @@ def process_tei_file(tei_path: Path) -> Tuple[int, int]:
         # Write index file
         print(f"  Writing index file: {idx_path.name}")
         with open(idx_path, 'w', encoding='utf-8') as idx_file:
-            for headword_lower, offset, length in index_data:
+            for headword_index_key, offset, length in index_data:
                 # Escape headword for safety
-                headword_escaped = escape_field(headword_lower)
+                headword_escaped = escape_field(headword_index_key)
                 idx_file.write(f"{headword_escaped}\t{offset}\t{length}\n")
 
         # Report file sizes
