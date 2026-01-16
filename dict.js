@@ -530,115 +530,59 @@ class Dictionary {
       }
     }
 
-    // If still not found, try conjugation lookup
-    if (!indexEntry) {
-      console.log('[Dict] Trying conjugation lookup...');
+    // Always check for conjugations (even if we found a bilingual dictionary entry)
+    // This allows us to show both definitions for words like "lis" (lily / conjugation of lire)
+    const conjugationEntry = await this.lookupConjugationWithHeuristics(normalizedWord);
 
-      // First try direct conjugation lookup
-      let conjugationResult = await this.lookupConjugation(normalizedWord);
+    // If we found an entry in the bilingual dictionary
+    if (indexEntry) {
+      // Fetch full entry from .u8 file
+      console.log('[Dict] Fetching entry at offset:', indexEntry.offset, 'length:', indexEntry.length);
+      const entry = await this.fetchEntry(indexEntry.offset, indexEntry.length);
+      console.log('[Dict] Fetched entry:', entry);
 
-      // If not found and word ends with 'e' (possible feminine form), try masculine form
-      if (!conjugationResult && normalizedWord.endsWith('e')) {
-        console.log('[Dict] Conjugation lookup failed, trying to convert feminine to masculine...');
-        const masculineCandidates = this.getFeminineCandidates(normalizedWord);
-
-        for (const candidate of masculineCandidates) {
-          console.log('[Dict] Trying conjugation lookup with masculine candidate:', candidate);
-          conjugationResult = await this.lookupConjugation(candidate);
-          if (conjugationResult) {
-            console.log('[Dict] Found conjugation with masculine form:', candidate);
-            break;
-          }
-        }
+      // If we also found a conjugation, show conjugation first and bilingual second
+      if (conjugationEntry) {
+        console.log('[Dict] Word found in both bilingual and conjugation dictionaries');
+        // Make conjugation the primary entry
+        conjugationEntry.alternateDefinition = {
+          type: 'bilingual',
+          headword: entry.headword,
+          pos: entry.pos,
+          gender: entry.gender,
+          pronunciation: entry.pronunciation,
+          translations: entry.translations,
+          definition: entry.definition
+        };
+        console.log('[Dict] Showing conjugation first, bilingual second');
+        return conjugationEntry;
       }
 
-      // If still not found and word ends with 's' (possible plural), try singular forms
-      if (!conjugationResult && normalizedWord.endsWith('s')) {
-        console.log('[Dict] Conjugation lookup failed, trying to convert plural to singular...');
-        const singularCandidates = this.getPluralCandidates(normalizedWord);
+      return entry;
+    }
 
-        for (const candidate of singularCandidates) {
-          console.log('[Dict] Trying conjugation lookup with singular candidate:', candidate);
-          conjugationResult = await this.lookupConjugation(candidate);
-          if (conjugationResult) {
-            console.log('[Dict] Found conjugation with singular form:', candidate);
-            break;
-          }
-
-          // If singular still not found and it ends with 'e', try feminine-to-masculine
-          if (!conjugationResult && candidate.endsWith('e')) {
-            console.log('[Dict] Trying feminine-to-masculine on plural candidate:', candidate);
-            const feminineToMasculine = this.getFeminineCandidates(candidate);
-            for (const mascCandidate of feminineToMasculine) {
-              console.log('[Dict] Trying conjugation with masculine form from plural:', mascCandidate);
-              conjugationResult = await this.lookupConjugation(mascCandidate);
-              if (conjugationResult) {
-                console.log('[Dict] Found conjugation with masculine form from plural:', mascCandidate);
-                break;
-              }
-            }
-          }
-
-          if (conjugationResult) break;
-        }
-      }
-
-      if (conjugationResult) {
-        console.log('[Dict] Found conjugation, looking up infinitive:', conjugationResult.infinitive);
-
-        // Now lookup the infinitive in the main dictionary
-        const infinitiveEntry = await this.lookupInfinitive(conjugationResult.infinitive);
-
-        if (infinitiveEntry) {
-          // Augment the entry with conjugation info
-          infinitiveEntry.searchedForm = normalizedWord;
-          infinitiveEntry.conjugationInfo = conjugationResult;
-
-          // Create inflection note
-          const tenseInfo = this.formatTenseInfo(conjugationResult.tenses, conjugationResult.fullForm);
-          infinitiveEntry.inflectionNote = `conjugated form of "${conjugationResult.infinitive}" (${tenseInfo})`;
-
-          // Override pronunciation with conjugated form's IPA
-          if (conjugationResult.ipas) {
-            infinitiveEntry.pronunciation = conjugationResult.ipas;
-          }
-
-          console.log('[Dict] Successfully augmented infinitive entry with conjugation info');
-          return infinitiveEntry;
-        } else {
-          console.log('[Dict] Could not find infinitive in dictionary');
-        }
-      }
+    // If we found a conjugation but no bilingual dictionary entry, return the conjugation
+    if (conjugationEntry) {
+      return conjugationEntry;
     }
 
     // If still not found, try removing contractions
-    if (!indexEntry) {
-      const contractionResult = this.tryRemoveContraction(normalizedWord);
-      if (contractionResult) {
-        console.log('[Dict] Trying after removing contraction:', contractionResult.prefix, '+', contractionResult.word);
+    const contractionResult = this.tryRemoveContraction(normalizedWord);
+    if (contractionResult) {
+      console.log('[Dict] Trying after removing contraction:', contractionResult.prefix, '+', contractionResult.word);
 
-        // Try lookup with the de-contracted word
-        const decontractedEntry = await this.lookup(contractionResult.word, followingText);
-        if (decontractedEntry) {
-          // Add note about the contraction
-          decontractedEntry.contractionPrefix = contractionResult.prefix;
-          decontractedEntry.originalSearched = normalizedWord;
-          return decontractedEntry;
-        }
+      // Try lookup with the de-contracted word (recursive call will check both dictionaries)
+      const decontractedEntry = await this.lookup(contractionResult.word, followingText);
+      if (decontractedEntry) {
+        // Add note about the contraction
+        decontractedEntry.contractionPrefix = contractionResult.prefix;
+        decontractedEntry.originalSearched = normalizedWord;
+        return decontractedEntry;
       }
     }
 
-    if (!indexEntry) {
-      console.log('[Dict] Word not found in index (even after heuristics)');
-      return null;
-    }
-
-    // Fetch full entry from .u8 file (exact match)
-    console.log('[Dict] Fetching entry at offset:', indexEntry.offset, 'length:', indexEntry.length);
-    const entry = await this.fetchEntry(indexEntry.offset, indexEntry.length);
-    console.log('[Dict] Fetched entry:', entry);
-
-    return entry;
+    console.log('[Dict] Word not found in either dictionary (even after heuristics)');
+    return null;
   }
 
   /**
@@ -774,6 +718,104 @@ class Dictionary {
     const conjugationEntry = await this.fetchConjugationEntries(indexEntry.offset, conjugatedForm);
 
     return conjugationEntry;
+  }
+
+  /**
+   * Look up a conjugated form with heuristics (feminine, plural, contractions)
+   * Returns conjugation info augmented with infinitive entry, or null if not found
+   */
+  async lookupConjugationWithHeuristics(normalizedWord) {
+    console.log('[Dict] Trying conjugation lookup with heuristics...');
+
+    // First try direct conjugation lookup
+    let conjugationResult = await this.lookupConjugation(normalizedWord);
+
+    // If not found and word ends with 'e' (possible feminine form), try masculine form
+    if (!conjugationResult && normalizedWord.endsWith('e')) {
+      console.log('[Dict] Conjugation lookup failed, trying to convert feminine to masculine...');
+      const masculineCandidates = this.getFeminineCandidates(normalizedWord);
+
+      for (const candidate of masculineCandidates) {
+        console.log('[Dict] Trying conjugation lookup with masculine candidate:', candidate);
+        conjugationResult = await this.lookupConjugation(candidate);
+        if (conjugationResult) {
+          console.log('[Dict] Found conjugation with masculine form:', candidate);
+          break;
+        }
+      }
+    }
+
+    // If still not found and word ends with 's' (possible plural), try singular forms
+    if (!conjugationResult && normalizedWord.endsWith('s')) {
+      console.log('[Dict] Conjugation lookup failed, trying to convert plural to singular...');
+      const singularCandidates = this.getPluralCandidates(normalizedWord);
+
+      for (const candidate of singularCandidates) {
+        console.log('[Dict] Trying conjugation lookup with singular candidate:', candidate);
+        conjugationResult = await this.lookupConjugation(candidate);
+        if (conjugationResult) {
+          console.log('[Dict] Found conjugation with singular form:', candidate);
+          break;
+        }
+
+        // If singular still not found and it ends with 'e', try feminine-to-masculine
+        if (!conjugationResult && candidate.endsWith('e')) {
+          console.log('[Dict] Trying feminine-to-masculine on plural candidate:', candidate);
+          const feminineToMasculine = this.getFeminineCandidates(candidate);
+          for (const mascCandidate of feminineToMasculine) {
+            console.log('[Dict] Trying conjugation with masculine form from plural:', mascCandidate);
+            conjugationResult = await this.lookupConjugation(mascCandidate);
+            if (conjugationResult) {
+              console.log('[Dict] Found conjugation with masculine form from plural:', mascCandidate);
+              break;
+            }
+          }
+        }
+
+        if (conjugationResult) break;
+      }
+    }
+
+    // If still not found, try removing contractions
+    if (!conjugationResult) {
+      const contractionResult = this.tryRemoveContraction(normalizedWord);
+      if (contractionResult) {
+        console.log('[Dict] Trying conjugation after removing contraction:', contractionResult.prefix, '+', contractionResult.word);
+        // Recursively lookup the de-contracted word
+        return await this.lookupConjugationWithHeuristics(contractionResult.word);
+      }
+    }
+
+    if (!conjugationResult) {
+      console.log('[Dict] No conjugation found even with heuristics');
+      return null;
+    }
+
+    console.log('[Dict] Found conjugation, looking up infinitive:', conjugationResult.infinitive);
+
+    // Now lookup the infinitive in the main dictionary
+    const infinitiveEntry = await this.lookupInfinitive(conjugationResult.infinitive);
+
+    if (!infinitiveEntry) {
+      console.log('[Dict] Could not find infinitive in dictionary');
+      return null;
+    }
+
+    // Augment the entry with conjugation info
+    infinitiveEntry.searchedForm = normalizedWord;
+    infinitiveEntry.conjugationInfo = conjugationResult;
+
+    // Create inflection note
+    const tenseInfo = this.formatTenseInfo(conjugationResult.tenses, conjugationResult.fullForm);
+    infinitiveEntry.inflectionNote = `conjugated form of "${conjugationResult.infinitive}" (${tenseInfo})`;
+
+    // Override pronunciation with conjugated form's IPA
+    if (conjugationResult.ipas) {
+      infinitiveEntry.pronunciation = conjugationResult.ipas;
+    }
+
+    console.log('[Dict] Successfully augmented infinitive entry with conjugation info');
+    return infinitiveEntry;
   }
 
   /**

@@ -511,6 +511,7 @@ async function showPopup(word, followingText, x, y) {
     </div>
     <div class="french-popup-translations">${formatTranslations(entry.translations)}</div>
     ${entry.definition ? `<div class="french-popup-definition">${escapeHtml(entry.definition)}</div>` : ''}
+    ${entry.alternateDefinition ? formatAlternateDefinition(entry.alternateDefinition, displayWord) : ''}
   `;
 
   document.body.appendChild(currentPopup);
@@ -541,6 +542,47 @@ async function showPopup(word, followingText, x, y) {
   currentPopup.addEventListener('mouseleave', () => {
     hidePopup();
   });
+}
+
+/**
+ * Format alternate definition (e.g., bilingual entry when word also has conjugation)
+ */
+function formatAlternateDefinition(altDef, originalWord) {
+  if (!altDef) return '';
+
+  if (altDef.type === 'conjugation') {
+    return `
+      <div class="french-popup-alternate">
+        <div class="french-popup-word">
+          ${escapeHtml(originalWord)}
+        </div>
+        <div class="french-popup-inflection">conjugated form of "${escapeHtml(altDef.infinitive)}" (${escapeHtml(altDef.tenseInfo)})</div>
+        <div class="french-popup-meta">
+          ${altDef.pos ? `<span class="pos">${escapeHtml(altDef.pos)}</span>` : ''}
+          ${altDef.pronunciation ? `<span class="pron">[${altDef.pronunciation}]</span>` : ''}
+        </div>
+        <div class="french-popup-translations">${formatTranslations(altDef.translations)}</div>
+      </div>
+    `;
+  }
+
+  if (altDef.type === 'bilingual') {
+    return `
+      <div class="french-popup-alternate">
+        <div class="french-popup-word">
+          ${escapeHtml(altDef.headword || originalWord)}
+        </div>
+        <div class="french-popup-meta">
+          ${altDef.pos ? `<span class="pos">${escapeHtml(altDef.pos)}</span>` : ''}
+          ${altDef.gender ? `<span class="gender">${escapeHtml(altDef.gender)}</span>` : ''}
+          ${altDef.pronunciation ? `<span class="pron">[${altDef.pronunciation}]</span>` : ''}
+        </div>
+        <div class="french-popup-translations">${formatTranslations(altDef.translations)}</div>
+        ${altDef.definition ? `<div class="french-popup-definition">${escapeHtml(altDef.definition)}</div>` : ''}
+    `;
+  }
+
+  return '';
 }
 
 /**

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Dual Definitions - French Popups</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      line-height: 2;
+      font-size: 18px;
+    }
+    h1 {
+      color: #2563eb;
+    }
+    .test-section {
+      margin: 30px 0;
+      padding: 20px;
+      background: #f0f4f8;
+      border-radius: 8px;
+    }
+    .explanation {
+      color: #64748b;
+      font-size: 14px;
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Test: Dual Definitions (Dictionary + Conjugation)</h1>
+
+  <div class="test-section">
+    <div class="explanation">
+      Testing "lis" - should show both noun (lily) and verb conjugation (conjugated form of "lire")
+    </div>
+    <p>Les <strong>lis</strong> blancs sont magnifiques dans le jardin.</p>
+    <p>Je <strong>lis</strong> un livre intéressant.</p>
+  </div>
+
+  <div class="test-section">
+    <div class="explanation">
+      Testing "est" - should show both noun (east) and verb conjugation (conjugated form of "être")
+    </div>
+    <p>L'<strong>est</strong> de la France a un climat continental.</p>
+    <p>Il <strong>est</strong> très intelligent.</p>
+  </div>
+
+  <div class="test-section">
+    <div class="explanation">
+      Additional test cases with words that might exist in both dictionaries
+    </div>
+    <p>Le <strong>livre</strong> est sur la table.</p>
+    <p>Elle me <strong>livre</strong> les documents.</p>
+  </div>
+
+  <div class="test-section">
+    <div class="explanation">
+      Regular words (should work as before with no changes)
+    </div>
+    <p>Le <strong>chat</strong> dort sur le canapé.</p>
+    <p>Une <strong>maison</strong> rouge au coin de la rue.</p>
+  </div>
+
+</body>
+</html>

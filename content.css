@@ -102,3 +102,15 @@ transblock, transword {
   border-top: 1px solid #cbd5e1;
   font-style: italic;
 }
+.french-popup-alternate {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 2px solid #cbd5e1;
+}
+
+.french-popup-alternate-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 6px;
+}
