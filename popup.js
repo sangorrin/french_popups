@@ -3,8 +3,7 @@
 
 // Popup menu logic
 const languageSelect = document.getElementById('language-select');
-const statusDot = document.getElementById('status-dot');
-const statusText = document.getElementById('status-text');
+const toggleExtensionBtn = document.getElementById('toggle-extension-btn');
 const showDefinitionsCheckbox = document.getElementById('show-definitions');
 
 // Load saved preferences
@@ -53,45 +52,44 @@ showDefinitionsCheckbox.addEventListener('change', () => {
   });
 });
 
-// Update status based on current tab
-function updateStatus() {
+// Toggle extension on/off for current domain
+function updateToggleButton() {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs[0]) {
-      chrome.tabs.sendMessage(tabs[0].id, { action: 'getStatus' }, (response) => {
-        if (chrome.runtime.lastError) {
-          statusDot.className = 'status-dot inactive';
-          statusText.textContent = 'Extension not active on this page';
-          return;
-        }
+      const currentDomain = new URL(tabs[0].url).hostname;
+      const pageKey = `disabled_${currentDomain}`;
 
-        if (response && response.active) {
-          statusDot.className = 'status-dot active';
-          statusText.textContent = 'Active • French detected';
+      chrome.storage.local.get([pageKey], (result) => {
+        const isDisabled = result[pageKey] === true;
+
+        if (isDisabled) {
+          toggleExtensionBtn.textContent = '✅ Enable on this site';
+          toggleExtensionBtn.title = 'Enable dictionary on this domain';
+          toggleExtensionBtn.classList.add('disabled');
         } else {
-          statusDot.className = 'status-dot inactive';
-          statusText.textContent = 'Inactive • No French detected';
+          toggleExtensionBtn.textContent = '⏸️ Disable on this site';
+          toggleExtensionBtn.title = 'Disable dictionary on this domain';
+          toggleExtensionBtn.classList.remove('disabled');
         }
       });
     }
   });
 }
 
-updateStatus();
+updateToggleButton();
 
-// Force activate button handler
-const forceActivateBtn = document.getElementById('force-activate-btn');
-forceActivateBtn.addEventListener('click', () => {
+// Toggle button handler
+toggleExtensionBtn.addEventListener('click', () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs[0]) {
-      chrome.tabs.sendMessage(tabs[0].id, { action: 'forceActivate' }, (response) => {
+      chrome.tabs.sendMessage(tabs[0].id, { action: 'toggleExtension' }, (response) => {
         if (chrome.runtime.lastError) {
-          statusText.textContent = 'Error: Extension not loaded on this page';
+          console.error('Error:', chrome.runtime.lastError);
           return;
         }
 
         if (response && response.success) {
-          statusDot.className = 'status-dot active';
-          statusText.textContent = 'Active • Manually activated';
+          updateToggleButton();
         }
       });
     }

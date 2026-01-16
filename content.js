@@ -7,7 +7,6 @@
  */
 
 let isActive = false;
-let isFrenchPage = false;
 let currentPopup = null;
 let showDefinitions = false;
 const HOVER_DELAY = 400; // ms - delay before showing popup after mouse stops
@@ -22,74 +21,23 @@ let hidePopupTimer = null;
 async function init() {
   try {
     // Load preferences from storage
-    const result = await chrome.storage.local.get(['targetLanguage', 'showDefinitions']);
+    const result = await chrome.storage.local.get(['targetLanguage', 'showDefinitions', 'extensionDisabledOnPage']);
     const targetLang = result.targetLanguage || 'eng';
     showDefinitions = result.showDefinitions !== false ? result.showDefinitions : false;
 
     await dictionary.init(targetLang);
 
-    // Detect if page is French
-    await detectFrenchPage();
+    // Extension is active by default, unless explicitly disabled for this page
+    const pageKey = `disabled_${window.location.hostname}`;
+    const isDisabledForPage = await chrome.storage.local.get([pageKey]);
 
-    if (isFrenchPage) {
+    if (!isDisabledForPage[pageKey]) {
       isActive = true;
       attachHoverListeners();
     }
   } catch (error) {
     console.error('[French Popups] Initialization error:', error);
   }
-}
-
-/**
- * Three-layer French page detection
- */
-async function detectFrenchPage() {
-  // Layer 1: HTML lang attribute
-  const htmlLang = document.documentElement.lang;
-  if (htmlLang && htmlLang.toLowerCase().startsWith('fr')) {
-    isFrenchPage = true;
-    return;
-  }
-
-  // Layer 2: French character markers
-  const bodyText = document.body.textContent.substring(0, 5000);
-  const frenchChars = bodyText.match(/[àâäéèêëïîôùûüÿçœæ]/gi);
-  const ratio = frenchChars ? frenchChars.length / bodyText.length : 0;
-
-  if (ratio > 0.01) { // >1% French characters
-    isFrenchPage = true;
-    return;
-  }
-
-  // Layer 3: Dictionary sampling
-  const words = extractSampleWords(bodyText, 15);
-  let matchCount = 0;
-
-  for (const word of words) {
-    if (await dictionary.exists(word)) {
-      matchCount++;
-    }
-  }
-
-  const matchRatio = matchCount / words.length;
-  if (matchRatio > 0.4) { // >40% words match dictionary
-    isFrenchPage = true;
-    return;
-  }
-
-}
-
-/**
- * Extract sample words for dictionary checking
- */
-function extractSampleWords(text, count) {
-  const words = text
-    .toLowerCase()
-    .match(/[a-zàâäéèêëïîôùûüÿçœæ]{4,}/gi) || [];
-
-  const uniqueWords = [...new Set(words)];
-  const shuffled = uniqueWords.sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count);
 }
 
 /**
@@ -700,15 +648,21 @@ function hidePopup() {
 }
 
 /**
- * Force activate the extension on the current page
+ * Toggle extension activation state for the current page
  */
-function forceActivate() {
+async function toggleExtension() {
+  const pageKey = `disabled_${window.location.hostname}`;
 
-  if (!isActive) {
-    isActive = true;
-    isFrenchPage = true; // Mark as French page
-    attachHoverListeners();
+  if (isActive) {
+    // Disable on this page
+    isActive = false;
+    hidePopup();
+    await chrome.storage.local.set({ [pageKey]: true });
   } else {
+    // Enable on this page
+    isActive = true;
+    attachHoverListeners();
+    await chrome.storage.local.set({ [pageKey]: false });
   }
 }
 
@@ -717,14 +671,16 @@ function forceActivate() {
  */
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'getStatus') {
-    sendResponse({ active: isActive, french: isFrenchPage });
+    sendResponse({ active: isActive });
   } else if (message.action === 'languageChanged') {
     dictionary.changeLanguage(message.language);
   } else if (message.action === 'settingsChanged') {
     showDefinitions = message.showDefinitions;
-  } else if (message.action === 'forceActivate') {
-    forceActivate();
-    sendResponse({ success: true, active: isActive });
+  } else if (message.action === 'toggleExtension') {
+    toggleExtension().then(() => {
+      sendResponse({ success: true, active: isActive });
+    });
+    return true; // Keep channel open for async response
   }
 });
 

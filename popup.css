@@ -85,55 +85,11 @@ main {
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-.status {
-  padding: 16px;
-  background: #f8f9fa;
-  border-radius: 6px;
-  margin-bottom: 16px;
-}
-
-.status-indicator {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #95a5a6;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-.status-dot.active {
-  background: #27ae60;
-}
-
-.status-dot.inactive {
-  background: #e74c3c;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-#status-text {
-  font-size: 13px;
-  color: #5a6c7d;
-  font-weight: 500;
-}
-
 .action-buttons {
   margin-bottom: 16px;
 }
 
-.force-activate-btn {
+.toggle-extension-btn {
   width: 100%;
   padding: 12px 20px;
   font-size: 14px;
@@ -147,12 +103,25 @@ main {
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
-.force-activate-btn:hover {
+.toggle-extension-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
-.force-activate-btn:active {
+.toggle-extension-btn:active {
   transform: translateY(0);
   box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+}
+
+.toggle-extension-btn.disabled {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+}
+
+.toggle-extension-btn.disabled:hover {
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4);
+}
+
+.toggle-extension-btn.disabled:active {
+  box-shadow: 0 2px 6px rgba(39, 174, 96, 0.3);
 }
