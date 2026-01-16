@@ -136,21 +136,24 @@ def extract_conjugations(jsonl_path, output_u8):
     print(f"  - {output_u8} ({form_count} entries)")
     return conjugations
 
-def load_valid_infinitives(idx_path):
-    """Load all headwords from fra-eng.idx"""
-    valid_infinitives = set()
+def load_valid_infinitives(idx_path, u8_path):
+    """Load all verb infinitives from fra-eng.u8, keyed by headword"""
+    valid_infinitives = {}
     try:
-        with open(idx_path, 'r', encoding='utf-8') as f:
+        # Read the u8 file to get POS info
+        with open(u8_path, 'r', encoding='utf-8') as f:
             for line in f:
                 parts = line.strip().split('\t')
-                if len(parts) >= 1:
+                if len(parts) >= 2:
                     headword = parts[0].lower().strip()
-                    if headword:
-                        valid_infinitives.add(headword)
-        print(f"[INFO] Loaded {len(valid_infinitives)} valid infinitives from {idx_path}")
+                    pos = parts[1].lower().strip()
+                    # Only include verbs (pos == 'v' or 'verb')
+                    if headword and (pos == 'v' or pos == 'verb'):
+                        valid_infinitives[headword] = pos
+        print(f"[INFO] Loaded {len(valid_infinitives)} valid verb infinitives from {u8_path}")
         return valid_infinitives
     except (IOError, OSError) as e:
-        print(f"[ERROR] Failed to load {idx_path}: {e}")
+        print(f"[ERROR] Failed to load {u8_path}: {e}")
         sys.exit(1)
 
 def parse_conjugation_entry(line):
@@ -223,15 +226,15 @@ def merge_tenses(entries):
 
     return ';'.join(result_parts) if result_parts else ''
 
-def deduplicate_conjugations(u8_path, idx_path):
+def deduplicate_conjugations(u8_path, idx_path, u8_dict_path):
     """Deduplicate conjugations and return list of entries"""
     entries_by_form = {}
     skipped_invalid = 0
     skipped_no_valid = 0
     total_entries = 0
 
-    print(f"\n[DEDUPLICATION] Loading valid infinitives from {idx_path}...")
-    valid_infinitives = load_valid_infinitives(idx_path)
+    print(f"\n[DEDUPLICATION] Loading valid verb infinitives from {u8_dict_path}...")
+    valid_infinitives = load_valid_infinitives(idx_path, u8_dict_path)
 
     print(f"[DEDUPLICATION] Reading conjugations from {u8_path}...")
 
@@ -366,6 +369,7 @@ def main(): # pylint: disable=missing-function-docstring
     script_dir = Path(__file__).parent
     jsonl_path = script_dir / 'fr-extract.jsonl'
     fra_eng_idx = script_dir / 'fra-eng.idx'
+    fra_eng_u8 = script_dir / 'fra-eng.u8'
     output_u8 = script_dir / 'fra.u8'
     output_idx = script_dir / 'fra.idx'
 
@@ -380,6 +384,11 @@ def main(): # pylint: disable=missing-function-docstring
         print("This is required for deduplication.")
         sys.exit(1)
 
+    if not fra_eng_u8.exists():
+        print(f"Error: {fra_eng_u8} not found!")
+        print("This is required to validate verb infinitives.")
+        sys.exit(1)
+
     # Step 1: Extract conjugations
     print("=" * 70)
     print("STEP 1: Extracting conjugations from JSONL")
@@ -390,7 +399,7 @@ def main(): # pylint: disable=missing-function-docstring
     print("\n" + "=" * 70)
     print("STEP 2: Deduplicating entries")
     print("=" * 70)
-    deduplicated = deduplicate_conjugations(output_u8, fra_eng_idx)
+    deduplicated = deduplicate_conjugations(output_u8, fra_eng_idx, fra_eng_u8)
 
     # Step 3: Generate index
     print("\n" + "=" * 70)
