@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Multiple Definitions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .word {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0066cc;
+            margin: 15px 0 5px 0;
+            padding: 10px;
+            background-color: #f0f7ff;
+            border-left: 4px solid #0066cc;
+        }
+        .word-count {
+            font-size: 12px;
+            color: #666;
+            margin-left: 10px;
+        }
+        p {
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+        .instructions {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Multiple Definitions</h1>
+
+    <div class="instructions">
+        <p><strong>Instructions:</strong> Hover over or select each word below to test that the extension shows ALL available definitions (all entries from the dictionary). These are the top 20 most repeated words in the fra-eng dictionary.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>Top 20 Words with Multiple Definitions</h2>
+
+        <p class="word">Corse <span class="word-count">(4 definitions)</span></p>
+        <p>Test this Corsican-related word with multiple definitions.</p>
+
+        <p class="word">faux <span class="word-count">(4 definitions)</span></p>
+        <p>A common word meaning "false" or "forgery" with multiple POS tags.</p>
+
+        <p class="word">marron <span class="word-count">(4 definitions)</span></p>
+        <p>Could be "chestnut", "brown", or "runaway" - test all definitions.</p>
+
+        <p class="word">nul <span class="word-count">(4 definitions)</span></p>
+        <p>Meaning "null", "void", "none" - multiple entries expected.</p>
+
+        <p class="word">plus <span class="word-count">(4 definitions)</span></p>
+        <p>Common word with multiple meanings: "more", "plus", "advantage".</p>
+
+        <p class="word">troisième <span class="word-count">(4 definitions)</span></p>
+        <p>Meaning "third" with different grammatical roles.</p>
+
+        <p class="word">Flore <span class="word-count">(3 definitions)</span></p>
+        <p>Could be a name or refer to flora/vegetation.</p>
+
+        <p class="word">RSA <span class="word-count">(3 definitions)</span></p>
+        <p>Acronym that appears in multiple contexts.</p>
+
+        <p class="word">TMA <span class="word-count">(3 definitions)</span></p>
+        <p>Another acronym with multiple entries.</p>
+
+        <p class="word">ache <span class="word-count">(3 definitions)</span></p>
+        <p>Could be a name or a botanical term (celery).</p>
+
+        <p class="word">alerte <span class="word-count">(3 definitions)</span></p>
+        <p>Meaning "alert" as noun, adjective, or verb form.</p>
+
+        <p class="word">avant <span class="word-count">(3 definitions)</span></p>
+        <p>Meaning "before" with different grammatical uses.</p>
+
+        <p class="word">bas <span class="word-count">(3 definitions)</span></p>
+        <p>Meaning "low", "stocking", or "bottom" - multiple entries.</p>
+
+        <p class="word">basque <span class="word-count">(3 definitions)</span></p>
+        <p>Could refer to the Basque region or a garment.</p>
+
+        <p class="word">bobo <span class="word-count">(3 definitions)</span></p>
+        <p>Slang or proper noun with multiple definitions.</p>
+
+        <p class="word">bon <span class="word-count">(3 definitions)</span></p>
+        <p>Common adjective "good" with multiple contexts.</p>
+
+        <p class="word">boum <span class="word-count">(3 definitions)</span></p>
+        <p>Could mean "boom", "party", or onomatopoeia.</p>
+
+        <p class="word">boxer <span class="word-count">(3 definitions)</span></p>
+        <p>Could be a noun (boxer person/dog) or verb (to box).</p>
+
+        <p class="word">bref <span class="word-count">(3 definitions)</span></p>
+        <p>Meaning "brief" or used as an interjection "in short".</p>
+
+        <p class="word">bêta <span class="word-count">(3 definitions)</span></p>
+        <p>Could be a Greek letter, idiot, or beta version.</p>
+    </div>
+
+    <div class="test-section">
+        <h3>Expected Behavior</h3>
+        <ul>
+            <li>When you hover over or select any of the above words, the popup should display <strong>ALL available definitions</strong> from the dictionary</li>
+            <li>If a word has 3-4 definitions, you should see all 3-4 entries displayed in the popup</li>
+            <li>Each entry should show: headword, POS, gender (if applicable), pronunciation, translations, and definition</li>
+        </ul>
+    </div>
+</body>
+</html>

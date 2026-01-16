@@ -507,34 +507,75 @@ function getFollowingText(currentNode, allTextNodes) {
 async function showPopup(word, followingText, x, y) {
   hidePopup();
 
-  const entry = await dictionary.lookup(word, followingText);
+  // Look up ALL definitions for this word
+  const entries = await dictionary.lookupAll(word, followingText);
 
-  if (!entry) {
+  // Also check for conjugations (even if we found definitions)
+  const conjugationEntry = await dictionary.lookupConjugationWithHeuristics(word.normalize('NFC').toLowerCase().replace(/'/g, '\u2019'));
+
+  // If no definitions found at all, return
+  if ((!entries || entries.length === 0) && !conjugationEntry) {
     return;
   }
 
   currentPopup = document.createElement('div');
   currentPopup.className = 'french-popup';
 
-  // Determine what to display as the headword
-  const displayWord = entry.searchedForm ? entry.searchedForm : entry.headword;
+  // Build HTML for all definitions
+  let popupHTML = '';
+  let isFirstDefinition = true;
 
-  currentPopup.innerHTML = `
-    <div class="french-popup-word">
-      ${escapeHtml(displayWord)}
-    </div>
-    ${entry.matchedWords && entry.matchedWords > 1 ? `<div class="french-popup-inflection">multi-word expression (${entry.matchedWords} words)</div>` : ''}
-    ${entry.inflectionNote ? `<div class="french-popup-inflection">${escapeHtml(entry.inflectionNote)}</div>` : ''}
-    <div class="french-popup-meta">
-      ${entry.pos ? `<span class="pos">${escapeHtml(entry.pos)}</span>` : ''}
-      ${entry.gender ? `<span class="gender">${escapeHtml(entry.gender)}</span>` : ''}
-      ${entry.pronunciation ? `<span class="pron">[${entry.pronunciation}]</span>` : ''}
-    </div>
-    <div class="french-popup-translations">${formatTranslations(entry.translations)}</div>
-    ${showDefinitions && entry.definition ? `<div class="french-popup-definition">${escapeHtml(entry.definition)}</div>` : ''}
-    ${entry.alternateDefinition ? formatAlternateDefinition(entry.alternateDefinition, displayWord) : ''}
-  `;
+  // If we have a conjugation, show it first
+  if (conjugationEntry) {
+    const displayWord = conjugationEntry.searchedForm ? conjugationEntry.searchedForm : conjugationEntry.headword;
+    popupHTML += `
+      <div class="french-popup-definition-conjugation">
+        <div class="french-popup-word">
+          ${escapeHtml(displayWord)}
+        </div>
+        ${conjugationEntry.inflectionNote ? `<div class="french-popup-inflection">${escapeHtml(conjugationEntry.inflectionNote)}</div>` : ''}
+        <div class="french-popup-meta">
+          ${conjugationEntry.pos ? `<span class="pos">${escapeHtml(conjugationEntry.pos)}</span>` : ''}
+          ${conjugationEntry.pronunciation ? `<span class="pron">[${conjugationEntry.pronunciation}]</span>` : ''}
+        </div>
+        <div class="french-popup-translations">${formatTranslations(conjugationEntry.translations)}</div>
+      </div>
+    `;
+    isFirstDefinition = false;
+  }
 
+  // Then show all bilingual definitions
+  if (entries && entries.length > 0) {
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      const displayWord = entry.searchedForm ? entry.searchedForm : entry.headword;
+
+      // Only show the word for the first definition
+      const wordHTML = isFirstDefinition ? `<div class="french-popup-word">${escapeHtml(displayWord)}</div>` : '';
+      isFirstDefinition = false;
+
+      // Check if there are more definitions coming
+      const hasMoreDefinitions = i < entries.length - 1;
+      const definitionGapClass = showDefinitions && entry.definition && hasMoreDefinitions ? 'with-gap' : '';
+
+      popupHTML += `
+        <div class="french-popup-definition-${i}">
+          ${wordHTML}
+          ${entry.matchedWords && entry.matchedWords > 1 ? `<div class="french-popup-inflection">multi-word expression (${entry.matchedWords} words)</div>` : ''}
+          ${entry.inflectionNote ? `<div class="french-popup-inflection">${escapeHtml(entry.inflectionNote)}</div>` : ''}
+          <div class="french-popup-meta">
+            ${entry.pos ? `<span class="pos">${escapeHtml(entry.pos)}</span>` : ''}
+            ${entry.gender ? `<span class="gender">${escapeHtml(entry.gender)}</span>` : ''}
+            ${entry.pronunciation ? `<span class="pron">[${entry.pronunciation}]</span>` : ''}
+          </div>
+          <div class="french-popup-translations">${formatTranslations(entry.translations)}</div>
+          ${showDefinitions && entry.definition ? `<div class="french-popup-definition ${definitionGapClass}">${escapeHtml(entry.definition)}</div>` : ''}
+        </div>
+      `;
+    }
+  }
+
+  currentPopup.innerHTML = popupHTML;
   document.body.appendChild(currentPopup);
 
   // Position popup

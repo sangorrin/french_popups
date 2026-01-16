@@ -390,8 +390,9 @@ class Dictionary {
   }
 
   /**
-   * Look up a French word/expression and return definition
+   * Look up a French word/expression and return definition(s)
    * If followingText is provided, tries to find multi-word expressions
+   * Returns first entry by default for backward compatibility
    */
   async lookup(word, followingText = '') {
     console.log('[Dict] Looking up word:', word, 'with following text:', followingText);
@@ -571,6 +572,100 @@ class Dictionary {
 
     console.log('[Dict] Word not found in either dictionary (even after heuristics)');
     return null;
+  }
+
+  /**
+   * Look up a French word and return ALL matching definitions
+   * Returns array of all entries found for the word
+   */
+  async lookupAll(word, followingText = '') {
+    console.log('[Dict] Looking up all definitions for:', word, 'with following text:', followingText);
+
+    if (!this.indexLoaded) {
+      console.log('[Dict] Index not loaded, loading now...');
+      await this.loadIndex();
+    }
+
+    if (!this.indexLoaded) {
+      console.log('[Dict] Failed to load index');
+      return [];
+    }
+
+    // Normalize the word for lookup
+    let normalizedWord = word.normalize('NFC').toLowerCase();
+    normalizedWord = normalizedWord.replace(/'/g, '\u2019');
+    console.log('[Dict] Normalized word:', normalizedWord);
+
+    // If we have following text, try to find multi-word expressions first
+    if (followingText && followingText.trim().length > 0) {
+      const multiWordResult = await this.lookupMultiWord(normalizedWord, followingText);
+      if (multiWordResult) {
+        console.log('[Dict] Found multi-word expression:', multiWordResult.headword);
+        return [multiWordResult];
+      }
+    }
+
+    // Try exact match - get ALL entries
+    let indexEntries = this.binarySearchAll(normalizedWord);
+    console.log('[Dict] Binary search found', indexEntries.length, 'entries');
+
+    // If found, fetch all entries
+    if (indexEntries.length > 0) {
+      const entries = [];
+      for (const indexEntry of indexEntries) {
+        const entry = await this.fetchEntry(indexEntry.offset, indexEntry.length);
+        if (entry) {
+          entries.push(entry);
+        }
+      }
+      if (entries.length > 0) {
+        return entries;
+      }
+    }
+
+    // If no exact match, try heuristics (plural, feminine, etc)
+    // First try plurals
+    console.log('[Dict] Exact match not found, trying heuristics...');
+    const candidates = this.getPluralCandidates(normalizedWord);
+
+    for (const candidate of candidates) {
+      const indexEntries = this.binarySearchAll(candidate);
+      if (indexEntries.length > 0) {
+        const entries = [];
+        for (const indexEntry of indexEntries) {
+          const entry = await this.fetchEntry(indexEntry.offset, indexEntry.length);
+          if (entry && this.isValidPluralTransformation(normalizedWord, entry.headword, entry.pos)) {
+            entry.searchedForm = normalizedWord;
+            entry.inflectionNote = this.getInflectionNote(normalizedWord, entry.headword, entry.pronunciation);
+            entry.pronunciation = null;
+            entries.push(entry);
+          }
+        }
+        if (entries.length > 0) return entries;
+      }
+    }
+
+    // Try feminine heuristics
+    const masculineCandidates = this.getFeminineCandidates(normalizedWord);
+    for (const candidate of masculineCandidates) {
+      const indexEntries = this.binarySearchAll(candidate);
+      if (indexEntries.length > 0) {
+        const entries = [];
+        for (const indexEntry of indexEntries) {
+          const entry = await this.fetchEntry(indexEntry.offset, indexEntry.length);
+          if (entry && entry.gender === 'm') {
+            entry.searchedForm = normalizedWord;
+            entry.inflectionNote = this.getInflectionNote(normalizedWord, entry.headword, entry.pronunciation);
+            entry.pronunciation = null;
+            entries.push(entry);
+          }
+        }
+        if (entries.length > 0) return entries;
+      }
+    }
+
+    console.log('[Dict] Word not found in dictionary');
+    return [];
   }
 
   /**

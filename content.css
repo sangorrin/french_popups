@@ -124,6 +124,10 @@ transblock, transword {
   border-top: 1px solid #cbd5e1;
   font-style: italic;
 }
+
+.french-popup-definition.with-gap {
+  margin-bottom: 12px;
+}
 .french-popup-alternate {
   margin-top: 12px;
   padding-top: 12px;
