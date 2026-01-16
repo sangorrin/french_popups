@@ -98,25 +98,38 @@ class Dictionary {
   }
 
   /**
+   * Check if a word is an acronym (all uppercase) or contraction with acronym (like "l'EST")
+   */
+  isAcronym(word) {
+    // Check if word is all uppercase letters (acronym like "EST", "LIS")
+    if (word.length > 1 && word === word.toUpperCase() && /[A-Z]/.test(word)) {
+      return true;
+    }
+
+    // Check if word has a contraction with an acronym after it (like "l'EST")
+    const contractions = ['qu\u2019', 'l\u2019', 'd\u2019', 'c\u2019', 'j\u2019', 'm\u2019', 't\u2019', 'n\u2019', 's\u2019'];
+    for (const contraction of contractions) {
+      if (word.startsWith(contraction)) {
+        const afterContraction = word.substring(contraction.length);
+        if (afterContraction.length > 0 && afterContraction === afterContraction.toUpperCase() && /[A-Z]/.test(afterContraction)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
    * Get search term for lookup
    * If word is all capitals (acronym), keep it as-is
    * If word has contraction with acronym after it (like "l'EST"), keep as-is
    * Otherwise lowercase it for matching
    */
   getSearchTerm(word) {
-    // Check if word is all uppercase letters (acronym like "EST", "LIS")
-    if (word.length > 1 && word === word.toUpperCase() && /[A-Z]/.test(word)) {
+    if (this.isAcronym(word)) {
       return word; // Keep acronym as-is
     }
-
-    // Check if word has a contraction with an acronym after it (like "l'EST")
-    const contractions = ['qu\u2019', 'l\u2019', 'd\u2019', 'c\u2019', 'j\u2019', 'm\u2019', 't\u2019', 'n\u2019', 's\u2019'];
-    for (const contraction of contractions) {
-      if (word.startsWith(contraction) && /[A-Z]/.test(word)) {
-        return word; // Keep contraction + acronym as-is
-      }
-    }
-
     return word.toLowerCase(); // Lowercase everything else
   }
 
@@ -848,6 +861,12 @@ class Dictionary {
    */
   async lookupConjugationWithHeuristics(normalizedWord) {
     console.log('[Dict] Trying conjugation lookup with heuristics...');
+
+    // Skip conjugation lookup for acronyms (all-uppercase words or contractions with uppercase)
+    if (this.isAcronym(normalizedWord)) {
+      console.log('[Dict] Skipping conjugation lookup for acronym:', normalizedWord);
+      return null;
+    }
 
     // First try direct conjugation lookup
     let conjugationResult = await this.lookupConjugation(normalizedWord);

@@ -459,7 +459,8 @@ async function showPopup(word, followingText, x, y) {
   const entries = await dictionary.lookupAll(word, followingText);
 
   // Also check for conjugations (even if we found definitions)
-  const conjugationEntry = await dictionary.lookupConjugationWithHeuristics(word.normalize('NFC').toLowerCase().replace(/'/g, '\u2019'));
+  // Don't lowercase here - let lookupConjugationWithHeuristics handle the casing logic (it checks for acronyms)
+  const conjugationEntry = await dictionary.lookupConjugationWithHeuristics(word.normalize('NFC').replace(/'/g, '\u2019'));
 
   // If no definitions found at all, return
   if ((!entries || entries.length === 0) && !conjugationEntry) {
