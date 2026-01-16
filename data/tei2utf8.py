@@ -112,6 +112,8 @@ def parse_entry(entry_elem) -> Optional[Tuple[str, str, str, str, str, str]]:
     if not translations:
         return None  # Skip entries without translations
 
+    # Remove duplicate translations
+    translations = list(set(translations))
     translations_str = ';'.join(translations)
 
     # Extract definition from <sense>/<def> (optional)
