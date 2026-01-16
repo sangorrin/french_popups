@@ -9,6 +9,7 @@
 let isActive = false;
 let isFrenchPage = false;
 let currentPopup = null;
+let showDefinitions = false;
 const HOVER_DELAY = 400; // ms - delay before showing popup after mouse stops
 const HIDE_DELAY = 300; // ms - delay before hiding popup when mouse moves away
 const lastMouseStop = { x: 0, y: 0 };
@@ -20,9 +21,10 @@ let hidePopupTimer = null;
  */
 async function init() {
   try {
-    // Load target language from storage
-    const result = await chrome.storage.local.get(['targetLanguage']);
+    // Load preferences from storage
+    const result = await chrome.storage.local.get(['targetLanguage', 'showDefinitions']);
     const targetLang = result.targetLanguage || 'eng';
+    showDefinitions = result.showDefinitions !== false ? result.showDefinitions : false;
 
     await dictionary.init(targetLang);
 
@@ -529,7 +531,7 @@ async function showPopup(word, followingText, x, y) {
       ${entry.pronunciation ? `<span class="pron">[${entry.pronunciation}]</span>` : ''}
     </div>
     <div class="french-popup-translations">${formatTranslations(entry.translations)}</div>
-    ${entry.definition ? `<div class="french-popup-definition">${escapeHtml(entry.definition)}</div>` : ''}
+    ${showDefinitions && entry.definition ? `<div class="french-popup-definition">${escapeHtml(entry.definition)}</div>` : ''}
     ${entry.alternateDefinition ? formatAlternateDefinition(entry.alternateDefinition, displayWord) : ''}
   `;
 
@@ -611,7 +613,7 @@ function formatAlternateDefinition(altDef, originalWord) {
           ${altDef.pronunciation ? `<span class="pron">[${altDef.pronunciation}]</span>` : ''}
         </div>
         <div class="french-popup-translations">${formatTranslations(altDef.translations)}</div>
-        ${altDef.definition ? `<div class="french-popup-definition">${escapeHtml(altDef.definition)}</div>` : ''}
+        ${showDefinitions && altDef.definition ? `<div class="french-popup-definition">${escapeHtml(altDef.definition)}</div>` : ''}
     `;
   }
 
@@ -677,6 +679,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     sendResponse({ active: isActive, french: isFrenchPage });
   } else if (message.action === 'languageChanged') {
     dictionary.changeLanguage(message.language);
+  } else if (message.action === 'settingsChanged') {
+    showDefinitions = message.showDefinitions;
   } else if (message.action === 'forceActivate') {
     forceActivate();
     sendResponse({ success: true, active: isActive });

@@ -47,6 +47,22 @@ main {
   margin-bottom: 8px;
 }
 
+.setting-group.checkbox-group label {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+.setting-group.checkbox-group input[type="checkbox"] {
+  margin-right: 8px;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: #667eea;
+}
+
 #language-select {
   width: 100%;
   padding: 12px 16px;

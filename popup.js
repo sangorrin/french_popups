@@ -5,11 +5,16 @@
 const languageSelect = document.getElementById('language-select');
 const statusDot = document.getElementById('status-dot');
 const statusText = document.getElementById('status-text');
+const showDefinitionsCheckbox = document.getElementById('show-definitions');
 
-// Load saved language preference
-chrome.storage.local.get(['targetLanguage'], (result) => {
+// Load saved preferences
+chrome.storage.local.get(['targetLanguage', 'showDefinitions'], (result) => {
   const savedLang = result.targetLanguage || 'eng';
   languageSelect.value = savedLang;
+
+  // Default to false if not set
+  const showDefs = result.showDefinitions !== false ? result.showDefinitions : false;
+  showDefinitionsCheckbox.checked = showDefs;
 });
 
 // Save language selection
@@ -22,6 +27,24 @@ languageSelect.addEventListener('change', () => {
         chrome.tabs.sendMessage(tabs[0].id, {
           action: 'languageChanged',
           language: selectedLang
+        }).catch(() => {
+          // Ignore errors (content script might not be loaded)
+        });
+      }
+    });
+  });
+});
+
+// Save definitions preference
+showDefinitionsCheckbox.addEventListener('change', () => {
+  const showDefs = showDefinitionsCheckbox.checked;
+  chrome.storage.local.set({ showDefinitions: showDefs }, () => {
+    // Notify content script of preference change
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          action: 'settingsChanged',
+          showDefinitions: showDefs
         }).catch(() => {
           // Ignore errors (content script might not be loaded)
         });
