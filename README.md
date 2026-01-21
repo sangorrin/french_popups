@@ -7,7 +7,7 @@ A Chrome extension for instant French-to-multilanguage dictionary lookups. Hover
 - ✨ **Instant Translations**: Hover over French words to see instant translations
 - 🌍 **23 Languages**: Support for English, Spanish, German, Italian, Portuguese, and 18+ more
 - 🔒 **100% Offline**: All dictionaries stored locally for privacy and speed
-- 🎯 **Smart Detection**: Automatically activates on French pages
+- 🎯 **Global Control**: Easily activate/deactivate the extension via the popup menu
 - 📚 **122,000+ Words**: Comprehensive dictionaries from WikDict/Wiktionary
 - 🎨 **Beautiful UI**: Clean, professional popup design with French colors
 
@@ -54,7 +54,7 @@ Not published yet.
 
 ## 🚀 Usage
 
-1. **Automatic Activation**: Visit any French website - the extension will automatically detect French content and activate. Otherwise you can force enable the extension on any page via the extension popup menu
+1. **Activation**: Click the extension icon in your toolbar and click "Activate Extension" to start translating. You can deactivate it anytime when not studying.
 2. **Choose Language**: Click the extension icon to select your preferred translation language
 3. **Hover to Translate**: Simply hover your mouse over any French word to see its translation
 

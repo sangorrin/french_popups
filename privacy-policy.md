@@ -15,6 +15,7 @@ Our extension stores the following data **locally on your device only** using Ch
 
 1. **User Preferences (chrome.storage.local):**
    - `targetLanguage`: Your selected target translation language (eng/spa/deu/ita/por/nld/rus/jpn/zho/pol/tur/swe/nor/dan/fin/ell/lat/lit/bul/cat/ces/gle/ind, default: eng)
+   - `globallyEnabled`: Whether the extension is active (default: true)
 
 ### Data We Do NOT Collect
 
@@ -30,7 +31,8 @@ Our extension stores the following data **locally on your device only** using Ch
 
 All data collected is used solely to:
 1. Remember your target translation language preference across browsing sessions
-2. Provide inline translations for French words when you hover over them
+2. Remember your global activation state (ON/OFF)
+3. Provide inline translations for French words when you hover over them while the extension is active
 
 ## Data Storage
 
@@ -49,7 +51,7 @@ Our extension requests the following permissions:
 
 1. **storage**: To save your language preference locally on your device
 2. **activeTab**: To display the popup on web pages (required for basic functionality)
-3. **Host permissions for all URLs**: To work on any webpage with French content
+3. **Host permissions for all URLs**: To work on any webpage with French content when enabled by the user
 
 These permissions are used exclusively to provide word translation functionality on any webpage and nothing else.
 

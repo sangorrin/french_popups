@@ -9,9 +9,12 @@
 // Initialize on installation
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
-    // Set default language to English
-    chrome.storage.local.set({ targetLanguage: 'eng' });
-    console.log('[French Popups] Extension installed, default language set to English');
+    // Set default language to English and enable globally
+    chrome.storage.local.set({
+      targetLanguage: 'eng',
+      globallyEnabled: true
+    });
+    console.log('[French Popups] Extension installed, default language set to English and enabled globally');
   } else if (details.reason === 'update') {
     console.log('[French Popups] Extension updated to version', chrome.runtime.getManifest().version);
   }

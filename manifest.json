@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "French Popups",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Hover over French words to see instant translations in your preferred language. Supports 23 languages with offline dictionaries.",
   "permissions": [
     "storage",

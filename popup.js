@@ -52,26 +52,20 @@ showDefinitionsCheckbox.addEventListener('change', () => {
   });
 });
 
-// Toggle extension on/off for current domain
+// Toggle extension on/off globally
 function updateToggleButton() {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    if (tabs[0]) {
-      const currentDomain = new URL(tabs[0].url).hostname;
-      const pageKey = `disabled_${currentDomain}`;
+  chrome.storage.local.get(['globallyEnabled'], (result) => {
+    // Default to true if not set
+    const isEnabled = result.globallyEnabled !== false;
 
-      chrome.storage.local.get([pageKey], (result) => {
-        const isDisabled = result[pageKey] === true;
-
-        if (isDisabled) {
-          toggleExtensionBtn.textContent = '✅ Enable on this site';
-          toggleExtensionBtn.title = 'Enable dictionary on this domain';
-          toggleExtensionBtn.classList.add('disabled');
-        } else {
-          toggleExtensionBtn.textContent = '⏸️ Disable on this site';
-          toggleExtensionBtn.title = 'Disable dictionary on this domain';
-          toggleExtensionBtn.classList.remove('disabled');
-        }
-      });
+    if (!isEnabled) {
+      toggleExtensionBtn.textContent = '🚀 Activate Extension';
+      toggleExtensionBtn.title = 'Enable French dictionary on all pages';
+      toggleExtensionBtn.classList.add('disabled');
+    } else {
+      toggleExtensionBtn.textContent = '⏸️ Deactivate Extension';
+      toggleExtensionBtn.title = 'Disable French dictionary on all pages';
+      toggleExtensionBtn.classList.remove('disabled');
     }
   });
 }
@@ -80,18 +74,23 @@ updateToggleButton();
 
 // Toggle button handler
 toggleExtensionBtn.addEventListener('click', () => {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    if (tabs[0]) {
-      chrome.tabs.sendMessage(tabs[0].id, { action: 'toggleExtension' }, (response) => {
-        if (chrome.runtime.lastError) {
-          console.error('Error:', chrome.runtime.lastError);
-          return;
-        }
+  chrome.storage.local.get(['globallyEnabled'], (result) => {
+    const currentState = result.globallyEnabled !== false;
+    const newState = !currentState;
 
-        if (response && response.success) {
-          updateToggleButton();
-        }
+    chrome.storage.local.set({ globallyEnabled: newState }, () => {
+      updateToggleButton();
+      // Notify all tabs about the global state change
+      chrome.tabs.query({}, (tabs) => {
+        tabs.forEach(tab => {
+          chrome.tabs.sendMessage(tab.id, {
+            action: 'globalStateChanged',
+            enabled: newState
+          }).catch(() => {
+            // Tab might not have content script loaded
+          });
+        });
       });
-    }
+    });
   });
 });

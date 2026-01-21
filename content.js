@@ -24,18 +24,16 @@ const WORD_REGEX = /[\p{L}\p{N}]+(?:['''.\-][\p{L}\p{N}.\-]+)*/u;
 async function init() {
   try {
     // Load preferences from storage
-    const result = await chrome.storage.local.get(['targetLanguage', 'showDefinitions', 'extensionDisabledOnPage']);
+    const result = await chrome.storage.local.get(['targetLanguage', 'showDefinitions', 'globallyEnabled']);
     const targetLang = result.targetLanguage || 'eng';
     showDefinitions = result.showDefinitions !== false ? result.showDefinitions : false;
 
+    // Check if extension is enabled globally (default to true)
+    isActive = result.globallyEnabled !== false;
+
     await dictionary.init(targetLang);
 
-    // Extension is active by default, unless explicitly disabled for this page
-    const pageKey = `disabled_${window.location.hostname}`;
-    const isDisabledForPage = await chrome.storage.local.get([pageKey]);
-
-    if (!isDisabledForPage[pageKey]) {
-      isActive = true;
+    if (isActive) {
       attachHoverListeners();
     }
   } catch (error) {
@@ -110,9 +108,9 @@ function hasMouseReallyMoved(e, lastX, lastY) {
   const bottomBoundary = lastY + threshold;
 
   return e.clientX > rightBoundary ||
-         e.clientX < leftBoundary ||
-         e.clientY > bottomBoundary ||
-         e.clientY < topBoundary;
+    e.clientX < leftBoundary ||
+    e.clientY > bottomBoundary ||
+    e.clientY < topBoundary;
 }
 
 /**
@@ -128,8 +126,8 @@ async function handleMouseStop(e) {
 
   // Skip inputs and editable elements
   if (hitElement.nodeName === 'INPUT' ||
-      hitElement.nodeName === 'TEXTAREA' ||
-      hitElement.isContentEditable) {
+    hitElement.nodeName === 'TEXTAREA' ||
+    hitElement.isContentEditable) {
     return;
   }
 
@@ -647,21 +645,19 @@ function hidePopup() {
 }
 
 /**
- * Toggle extension activation state for the current page
+ * Update global state and activate/deactivate
  */
-async function toggleExtension() {
-  const pageKey = `disabled_${window.location.hostname}`;
-
-  if (isActive) {
-    // Disable on this page
-    isActive = false;
+async function updateGlobalState(enabled) {
+  isActive = enabled;
+  if (!isActive) {
     hidePopup();
-    await chrome.storage.local.set({ [pageKey]: true });
+    // Note: We don't remove listeners easily in DOM, but isActive flag 
+    // in listeners will prevent them from doing anything.
   } else {
-    // Enable on this page
-    isActive = true;
+    // Attach if not already attached? 
+    // For simplicity, we can just ensure they are attached.
+    // In this specific implementation, move isActive check inside listeners.
     attachHoverListeners();
-    await chrome.storage.local.set({ [pageKey]: false });
   }
 }
 
@@ -675,11 +671,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     dictionary.changeLanguage(message.language);
   } else if (message.action === 'settingsChanged') {
     showDefinitions = message.showDefinitions;
-  } else if (message.action === 'toggleExtension') {
-    toggleExtension().then(() => {
-      sendResponse({ success: true, active: isActive });
-    });
-    return true; // Keep channel open for async response
+  } else if (message.action === 'globalStateChanged') {
+    updateGlobalState(message.enabled);
   }
 });
 

@@ -1,0 +1,44 @@
+Master French while browsing with French Popups. Hover over any French word on any webpage to see instant translations in 23+ languages. Our extension features a comprehensive database of 122,000+ words from WikDict and Wiktionary, all stored 100% offline for maximum privacy and lightning-fast speed. Easily activate or deactivate the extension globally from the popup menu, keeping it active only when you are in "study mode." Enjoy a clean, professional, and beautiful UI designed to help you learn without distraction. Perfect for students, travelers, and anyone looking to improve their French naturally while reading the web.
+
+🚀 HOW TO USE
+1. Install the extension.
+2. Click the extension icon in your toolbar and click "Activate Extension."
+3. Navigate to any website containing French text.
+4. Hover your mouse over any French word to see the instant translation popup.
+5. Deactivate the extension globally when you finish your study session.
+
+🌟 KEY FEATURES
+• Instant Translations: Simply hover over words to see definitions—no clicking or copying required.
+• 23 Supported Languages: Translate French into English, Spanish, German, Italian, Portuguese, Chinese, Japanese, and more.
+• 100% Offline: All dictionaries are stored locally on your device. No internet connection is needed for lookups.
+• 122,000+ Words: High-quality, comprehensive dictionary data derived from WikDict and Wiktionary.
+• Global Control: Activate the extension when you're ready to study and turn it off with one click when you're done.
+• Premium Aesthetics: A sleek, modern design with French-inspired colors that fits perfectly into your browsing experience.
+
+🌍 SUPPORTED LANGUAGES
+English (122k+ entries), Italian (67k+), Spanish (52k+), German (48k+), Dutch (31k+), Portuguese (26k+), Russian (24k+), Catalan (23k+), Polish (21k+), Swedish (19k+), Czech (19k+), Finnish (17k+), Japanese (16k+), Greek (14k+), Danish (13k+), Irish (12k+), Lithuanian (12k+), Turkish (11k+), Chinese (10k+), Latin (10k+), Norwegian (9k+), Bulgarian (9k+), and Indonesian (7k+).
+
+🔒 PRIVACY & SECURITY
+✓ 100% Private: We do NOT collect any personal data, browsing history, or lookup logs.
+✓ No Tracking: No analytics, no cookies, no external API calls.
+✓ Local Storage: All your settings and dictionary lookups stay on your computer.
+✓ Open Source: Verified code available for inspection on GitHub.
+
+Full Privacy Policy: https://github.com/sangorrin/french_popups/blob/main/privacy-policy.md
+
+💬 SUPPORT & FEEDBACK
+• Have a question or found a bug? We want to hear from you!
+• Use the Chrome Web Store Support Hub or open an issue on our GitHub repository: https://github.com/sangorrin/french_popups/issues
+
+⚖️ LICENSE & ATTRIBUTION
+This extension is open-source software licensed under the GNU General Public License v2.0 (GPLv2).
+• Extension Source Code: https://github.com/sangorrin/french_popups
+• License: https://github.com/sangorrin/french_popups/blob/main/LICENSE
+
+Dictionary data is derived from WikDict and Kaikki.org (Wiktionary), licensed under Creative Commons Attribution-ShareAlike (CC BY-SA 3.0).
+• Dictionary Attribution: https://github.com/sangorrin/french_popups/blob/main/LICENSE-DICTIONARIES
+
+==========================================================
+Copyright (C) 2026 Daniel Sangorrin
+Current release: v1.0.0 — Initial store release with 23 languages and offline support.
+See the full changelog on GitHub: https://github.com/sangorrin/french_popups

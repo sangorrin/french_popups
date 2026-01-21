@@ -1,0 +1,78 @@
+CHROME WEB STORE PRIVACY TAB ANSWERS - FRENCH POPUPS
+=====================================================
+
+SINGLE PURPOSE
+--------------
+Single purpose description (1000 chars max):
+
+French Popups is an educational tool designed to help language learners improve their French by providing instant word translations on hover. The extension allows users to globally activate or deactivate the dictionary from the extension popup menu. When activated, it displays a non-intrusive popup with definitions in one of 23 supported target languages. By using offline dictionaries, it provides a fast, privacy-focused experience that allows users to understand French text without leaving their current tab. All features—from the global toggle to the localized translation popups—serve this single mission of facilitating French language acquisition through seamless, in-context reference.
+
+
+PERMISSION JUSTIFICATION
+-------------------------
+
+Storage justification (1000 chars max):
+
+The "storage" permission is used exclusively to save the user's preferred target translation language (e.g., English, Spanish, Japanese, etc.). This ensures that the extension remembers the user's choice across different websites and browser sessions, providing a consistent learning experience. The choice is stored locally on the user's device via chrome.storage.local and is never transmitted to any external server. Without this permission, the extension would reset to the default language (English) every time the user starts a new session.
+
+Host permission justification (1000 chars max):
+
+Host permission for "<all_urls>" is required because French Popups is designed to assist learners on any website that contains French text (e.g., news sites, blogs, or educational platforms). The extension must be able to inject a content script to detect text under the cursor and display the translation popup dynamically when the user has globally activated the extension. This broad permission is necessary to provide the "hover-to-translate" functionality wherever the user encounters French on the web. We do not monitor browsing history or collect data from any site visited.
+
+ActiveTab justification (1000 chars max):
+
+The "activeTab" permission is used to allow the extension to function immediately on the current page when the user interacts with the extension's popup menu or actions. This provides a more secure way to interact with the current tab's content for the purpose of enabling the translation features.
+
+
+REMOTE CODE
+-----------
+Are you using remote code? NO
+
+Justification (1000 chars max):
+
+French Popups does NOT use any remote code. All logic and dictionary data are bundled within the extension package. This includes the content scripts (content.js, dict.js), the background worker (background.js), and the comprehensive offline dictionary files (stored in the data/ directory). The extension operates entirely offline once installed; it never fetches scripts from external domains, uses eval(), or makes API calls to third-party translation services. This architecture ensures high performance and absolute user privacy.
+
+
+DATA USAGE
+----------
+What user data do you plan to collect from users now or in the future?
+
+☐ Personally identifiable information - NOT COLLECTED
+☐ Health information - NOT COLLECTED
+☐ Financial and payment information - NOT COLLECTED
+☐ Authentication information - NOT COLLECTED
+☐ Personal communications - NOT COLLECTED
+☐ Location - NOT COLLECTED
+☐ Web history - NOT COLLECTED
+☐ User activity - NOT COLLECTED
+☐ Website content - NOT COLLECTED
+
+Answer: NONE - We do not collect ANY user data. All preferences (language selection) are stored locally on the user's device. No data is transmitted to external servers, no analytics are performed, and no user tracking is implemented.
+
+
+CERTIFICATIONS
+--------------
+☑ I certify that I do not sell or transfer user data to third parties, outside of the approved use cases
+☑ I certify that I do not use or transfer user data for purposes that are unrelated to my item's single purpose
+☑ I certify that I do not use or transfer user data to determine creditworthiness or for lending purposes
+
+Answer: ALL THREE CERTIFICATIONS ARE TRUE. The extension is dedicated solely to language learning and does not collect or transmit any data whatsoever.
+
+
+PRIVACY POLICY
+--------------
+Privacy policy URL:
+https://github.com/sangorrin/french_popups/blob/main/privacy-policy.md
+
+
+SUMMARY FOR REVIEWER
+---------------------
+French Popups is a privacy-first, offline educational extension that:
+- Collects NO user data.
+- Stores only a single preference (language choice) locally on the device.
+- Uses NO remote code or external API dependencies.
+- Features entirely offline dictionary lookups.
+- Requires "all_urls" host permission solely to provide translation functionality on any webpage containing French text when activated by the user.
+- Is open-source and transparent.
+
+All requested permissions are strictly limited to the functional requirements of providing instant hover translations for French learners.
