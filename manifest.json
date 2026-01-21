@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "French Popups",
-  "version": "0.4.0",
+  "version": "0.9.0",
   "description": "Hover over French words to see instant translations in your preferred language. Supports 23 languages with offline dictionaries.",
   "permissions": [
     "storage",
@@ -15,9 +15,16 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["dict.js", "content.js"],
-      "css": ["content.css"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "dict.js",
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
       "run_at": "document_idle"
     }
   ],
@@ -38,8 +45,13 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["data/*.u8", "data/*.idx"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "data/*.u8",
+        "data/*.idx"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }
