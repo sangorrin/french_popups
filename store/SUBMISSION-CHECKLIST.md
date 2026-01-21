@@ -21,10 +21,10 @@
 ## 📝 STORE LISTING ASSETS (TO DO)
 
 ### Visual Assets
-- [ ] **1 to 5 Screenshots** (1280x800 or 640x400 pixels)
-- [ ] **Small Promotional Tile** (440x280 pixels) - **REQUIRED**
-- [ ] **Marquee Promotional Tile** (1400x560 pixels) - OPTIONAL
-- [ ] **YouTube Demo:** A short video showing the "popups" in action - OPTIONAL
+- [ ] **1 to 5 Screenshots** (1280x800 or 640x400 pixels) - Using `nagoya_wiki.html`
+- [x] **Small Promotional Tile** (440x280 pixels) - **REQUIRED** - Created `promo-small.png`
+- [x] **Marquee Promotional Tile** (1400x560 pixels) - Created `promo-marquee.png`
+- [ ] **YouTube Demo:** A short video showing the "popups" in action.
 
 ### Listing Copy
 - [x] **Summary:** Master French while browsing: instant hover translations in 23 languages, 100% offline, private, and fast. (Max 132 chars)
