@@ -14,8 +14,9 @@ French Popups ("we", "our", or "the extension") is committed to protecting your 
 Our extension stores the following data **locally on your device only** using Chrome's storage API:
 
 1. **User Preferences (chrome.storage.local):**
-   - `targetLanguage`: Your selected target translation language (eng/spa/deu/ita/por/nld/rus/jpn/zho/pol/tur/swe/nor/dan/fin/ell/lat/lit/bul/cat/ces/gle/ind, default: eng)
-   - `globallyEnabled`: Whether the extension is active (default: true)
+   - `targetLanguage`: Your selected target translation language (default: `eng`)
+   - `globallyEnabled`: Whether the extension's hover functionality is active (default: `true`)
+   - `showDefinitions`: Whether to display detailed dictionary definitions in the popup (default: `false`)
 
 ### Data We Do NOT Collect
 
@@ -32,12 +33,13 @@ Our extension stores the following data **locally on your device only** using Ch
 All data collected is used solely to:
 1. Remember your target translation language preference across browsing sessions
 2. Remember your global activation state (ON/OFF)
-3. Provide inline translations for French words when you hover over them while the extension is active
+3. Remember your preference for showing detailed definitions
+4. Provide inline translations for French words when you hover over them while the extension is active
 
 ## Data Storage
 
 All data is stored locally on your device using:
-- **chrome.storage.local**: For your language preference
+- **chrome.storage.local**: For your language and UI preferences
 
 Your data never leaves your device.
 
@@ -115,5 +117,5 @@ All data is stored securely using Chrome's built-in storage APIs. Since no data 
 
 ---
 
-**Summary:** This extension stores only your language preference locally on your device to provide word translations. No personal information is collected, no data is transmitted externally, and you maintain complete control over your data. All dictionary lookups happen offline on your device.
+**Summary:** This extension stores only three parameters (language preference, activation state, and definition visibility) locally on your device to provide word translations. No personal information is collected, no data is transmitted externally, and you maintain complete control over your data. All dictionary lookups happen offline on your device.
 

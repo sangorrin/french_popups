@@ -78,6 +78,11 @@ See [LICENSE-DICTIONARIES](LICENSE-DICTIONARIES) for full attribution and detail
 
 Your privacy is important to us. We don't collect any personal data, track your activity, or send information to external servers. All translations happen completely offline on your device.
 
+The extension stores only the following three parameters locally on your device (using `chrome.storage.local`):
+- `targetLanguage`: Your selected target translation language (default: `eng`).
+- `globallyEnabled`: Whether the extension's hover functionality is currently active (default: `true`).
+- `showDefinitions`: Whether to display detailed word definitions in the popup (default: `false`).
+
 For more information, see our [Privacy Policy](privacy-policy.md).
 
 ## 💬 Support

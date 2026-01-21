@@ -13,7 +13,11 @@ PERMISSION JUSTIFICATION
 
 Storage justification (1000 chars max):
 
-The "storage" permission is used exclusively to save the user's preferred target translation language (e.g., English, Spanish, Japanese, etc.). This ensures that the extension remembers the user's choice across different websites and browser sessions, providing a consistent learning experience. The choice is stored locally on the user's device via chrome.storage.local and is never transmitted to any external server. Without this permission, the extension would reset to the default language (English) every time the user starts a new session.
+The "storage" permission is used exclusively to save three user preferences locally on the device (via chrome.storage.local):
+1. targetLanguage: The preferred target translation language (e.g., English, Spanish).
+2. globallyEnabled: A toggle to activate or deactivate the extension's hover functionality globally.
+3. showDefinitions: A preference to show or hide detailed word definitions in the popup.
+This ensures a consistent user experience across sessions without transmitting any data to external servers. Without this permission, these settings would reset every time the browser is closed.
 
 Host permission justification (1000 chars max):
 
@@ -47,7 +51,7 @@ What user data do you plan to collect from users now or in the future?
 ☐ User activity - NOT COLLECTED
 ☐ Website content - NOT COLLECTED
 
-Answer: NONE - We do not collect ANY user data. All preferences (language selection) are stored locally on the user's device. No data is transmitted to external servers, no analytics are performed, and no user tracking is implemented.
+Answer: NONE - We do not collect ANY user data. The ONLY data stored are 3 local parameters (targetLanguage, globallyEnabled, showDefinitions) inside the user's browser via chrome.storage.local. No data is transmitted to external servers, no analytics are performed, and no user tracking is implemented.
 
 
 CERTIFICATIONS
@@ -69,7 +73,7 @@ SUMMARY FOR REVIEWER
 ---------------------
 French Popups is a privacy-first, offline educational extension that:
 - Collects NO user data.
-- Stores only a single preference (language choice) locally on the device.
+- Stores only 3 preferences (targetLanguage, globallyEnabled, showDefinitions) locally on the device.
 - Uses NO remote code or external API dependencies.
 - Features entirely offline dictionary lookups.
 - Requires "all_urls" host permission solely to provide translation functionality on any webpage containing French text when activated by the user.

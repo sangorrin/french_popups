@@ -21,7 +21,10 @@ English (122k+ entries), Italian (67k+), Spanish (52k+), German (48k+), Dutch (3
 🔒 PRIVACY & SECURITY
 ✓ 100% Private: We do NOT collect any personal data, browsing history, or lookup logs.
 ✓ No Tracking: No analytics, no cookies, no external API calls.
-✓ Local Storage: All your settings and dictionary lookups stay on your computer.
+✓ Local Storage: Only three settings are stored locally on your device:
+  1. targetLanguage: Your translation language preference.
+  2. globallyEnabled: Whether the extension is active or paused.
+  3. showDefinitions: Your preference for showing detailed definitions.
 ✓ Open Source: Verified code available for inspection on GitHub.
 
 Full Privacy Policy: https://github.com/sangorrin/french_popups/blob/main/privacy-policy.md
