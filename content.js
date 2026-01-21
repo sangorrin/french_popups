@@ -9,8 +9,8 @@
 let isActive = false;
 let currentPopup = null;
 let showDefinitions = false;
-const HOVER_DELAY = 400; // ms - delay before showing popup after mouse stops
-const HIDE_DELAY = 300; // ms - delay before hiding popup when mouse moves away
+const HOVER_DELAY = 200; // ms - delay before showing popup after mouse stops
+const HIDE_DELAY = 200; // ms - delay before hiding popup when mouse moves away
 const lastMouseStop = { x: 0, y: 0 };
 let mouseMoveTimer = null;
 let hidePopupTimer = null;
