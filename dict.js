@@ -13,6 +13,18 @@ class Dictionary {
     this.indexLoaded = false;
     this.conjugationIndexCache = null;
     this.conjugationIndexLoaded = false;
+    this.debug = false;
+  }
+
+  /**
+   * Internal debug logger
+   */
+  _debug(...args) {
+    if (this.debug || window.FRENCH_POPUPS_DEBUG) {
+      console.log(...args);
+    } else {
+      console.debug(...args);
+    }
   }
 
   /**
@@ -52,7 +64,7 @@ class Dictionary {
         });
 
       this.indexLoaded = true;
-      console.log(`[French Popups] Loaded ${this.indexCache.length} entries for fra-${this.currentLanguage}`);
+      this._debug(`[French Popups] Loaded ${this.indexCache.length} entries for fra-${this.currentLanguage}`);
       return true;
     } catch (error) {
       console.error('[French Popups] Error loading index:', error);
@@ -88,7 +100,7 @@ class Dictionary {
         });
 
       this.conjugationIndexLoaded = true;
-      console.log(`[French Popups] Loaded ${this.conjugationIndexCache.length} conjugation entries`);
+      this._debug(`[French Popups] Loaded ${this.conjugationIndexCache.length} conjugation entries`);
       return true;
     } catch (error) {
       console.error('[French Popups] Error loading conjugation index:', error);
@@ -431,15 +443,15 @@ class Dictionary {
    * Returns first entry by default for backward compatibility
    */
   async lookup(word, followingText = '') {
-    console.log('[Dict] Looking up word:', word, 'with following text:', followingText);
+    this._debug('[Dict] Looking up word:', word, 'with following text:', followingText);
 
     if (!this.indexLoaded) {
-      console.log('[Dict] Index not loaded, loading now...');
+      this._debug('[Dict] Index not loaded, loading now...');
       await this.loadIndex();
     }
 
     if (!this.indexLoaded) {
-      console.log('[Dict] Failed to load index');
+      this._debug('[Dict] Failed to load index');
       return null;
     }
 
@@ -449,60 +461,60 @@ class Dictionary {
     normalizedWord = normalizedWord.replace(/'/g, '\u2019');  // U+0027 -> U+2019
     // Apply smart casing: keep acronyms, lowercase everything else
     normalizedWord = this.getSearchTerm(normalizedWord);
-    console.log('[Dict] Normalized word:', normalizedWord);
+    this._debug('[Dict] Normalized word:', normalizedWord);
 
     // If we have following text, try to find multi-word expressions first
     if (followingText && followingText.trim().length > 0) {
       const multiWordResult = await this.lookupMultiWord(normalizedWord, followingText);
       if (multiWordResult) {
-        console.log('[Dict] Found multi-word expression:', multiWordResult.headword);
+        this._debug('[Dict] Found multi-word expression:', multiWordResult.headword);
         return multiWordResult;
       }
     }
 
     // Try exact match
     let indexEntry = this.binarySearch(normalizedWord);
-    console.log('[Dict] Binary search result:', indexEntry);
+    this._debug('[Dict] Binary search result:', indexEntry);
 
     let searchedForm = normalizedWord; // Track what form we searched for
 
     // If no exact match, try plural-to-singular heuristics
     if (!indexEntry) {
-      console.log('[Dict] Exact match not found, trying plural heuristics...');
+      this._debug('[Dict] Exact match not found, trying plural heuristics...');
       const candidates = this.getPluralCandidates(normalizedWord);
 
       for (const candidate of candidates) {
-        console.log('[Dict] Trying plural candidate:', candidate);
+        this._debug('[Dict] Trying plural candidate:', candidate);
         const indexEntries = this.binarySearchAll(candidate);
 
         if (indexEntries.length > 0) {
-          console.log('[Dict] Found', indexEntries.length, 'candidate(s) in index for:', candidate);
+          this._debug('[Dict] Found', indexEntries.length, 'candidate(s) in index for:', candidate);
 
           // Try each entry until we find a valid one
           for (const indexEntry of indexEntries) {
             const entry = await this.fetchEntry(indexEntry.offset, indexEntry.length);
-            console.log('[Dict] Checking entry - POS:', entry?.pos, 'Gender:', entry?.gender);
+            this._debug('[Dict] Checking entry - POS:', entry?.pos, 'Gender:', entry?.gender);
 
             if (entry && this.isValidPluralTransformation(normalizedWord, entry.headword, entry.pos)) {
               // Valid transformation!
               entry.searchedForm = normalizedWord;
               entry.inflectionNote = this.getInflectionNote(normalizedWord, entry.headword, entry.pronunciation);
               entry.pronunciation = null; // Clear pronunciation since we don't have IPA for the guessed form
-              console.log('[Dict] Validated plural form - POS:', entry.pos);
+              this._debug('[Dict] Validated plural form - POS:', entry.pos);
               return entry;
             } else {
-              console.log('[Dict] Invalid plural transformation for this entry');
+              this._debug('[Dict] Invalid plural transformation for this entry');
             }
           }
         }
 
         // If the plural candidate ends with 'e', try converting it from feminine to masculine
         if (candidate.endsWith('e')) {
-          console.log('[Dict] Plural candidate ends with e, trying feminine-to-masculine conversion...');
+          this._debug('[Dict] Plural candidate ends with e, trying feminine-to-masculine conversion...');
           const feminineToMasculineCandidates = this.getFeminineCandidates(candidate);
 
           for (const masculineCandidate of feminineToMasculineCandidates) {
-            console.log('[Dict] Trying feminine-to-masculine from plural candidate:', masculineCandidate);
+            this._debug('[Dict] Trying feminine-to-masculine from plural candidate:', masculineCandidate);
             const masculineIndexEntries = this.binarySearchAll(masculineCandidate);
 
             if (masculineIndexEntries.length > 0) {
@@ -514,7 +526,7 @@ class Dictionary {
                   entry.inflectionNote = this.getInflectionNote(normalizedWord, entry.headword, entry.pronunciation);
                   entry.gender = 'f'; // Mark as feminine since we found it as a feminine form
                   entry.pronunciation = null; // Clear pronunciation since we don't have IPA for the guessed form
-                  console.log('[Dict] Validated feminine-to-masculine from plural form - POS:', entry.pos);
+                  this._debug('[Dict] Validated feminine-to-masculine from plural form - POS:', entry.pos);
                   return entry;
                 }
               }
@@ -526,20 +538,20 @@ class Dictionary {
 
     // If still not found, try feminine-to-masculine heuristics
     if (!indexEntry) {
-      console.log('[Dict] Trying feminine-to-masculine heuristics...');
+      this._debug('[Dict] Trying feminine-to-masculine heuristics...');
       const masculineCandidates = this.getFeminineCandidates(normalizedWord);
 
       for (const candidate of masculineCandidates) {
-        console.log('[Dict] Trying feminine candidate:', candidate);
+        this._debug('[Dict] Trying feminine candidate:', candidate);
         const indexEntries = this.binarySearchAll(candidate);
 
         if (indexEntries.length > 0) {
-          console.log('[Dict] Found', indexEntries.length, 'candidate(s) in index for:', candidate);
+          this._debug('[Dict] Found', indexEntries.length, 'candidate(s) in index for:', candidate);
 
           // Try each entry until we find a valid one
           for (const indexEntry of indexEntries) {
             const entry = await this.fetchEntry(indexEntry.offset, indexEntry.length);
-            console.log('[Dict] Checking entry - POS:', entry?.pos, 'Gender:', entry?.gender);
+            this._debug('[Dict] Checking entry - POS:', entry?.pos, 'Gender:', entry?.gender);
 
             if (entry && this.isValidFeminineTransformation(normalizedWord, entry.headword, entry.pos, entry.gender)) {
               // Valid transformation!
@@ -547,10 +559,10 @@ class Dictionary {
               entry.inflectionNote = this.getFeminineInflectionNote(normalizedWord, entry.headword, entry.pronunciation);
               entry.gender = 'f'; // Mark as feminine since we found it as a feminine form
               entry.pronunciation = null; // Clear pronunciation since we don't have IPA for the guessed form
-              console.log('[Dict] Validated feminine form - POS:', entry.pos, 'Gender:', entry.gender);
+              this._debug('[Dict] Validated feminine form - POS:', entry.pos, 'Gender:', entry.gender);
               return entry;
             } else {
-              console.log('[Dict] Invalid feminine transformation for this entry');
+              this._debug('[Dict] Invalid feminine transformation for this entry');
             }
           }
         }
@@ -564,13 +576,13 @@ class Dictionary {
     // If we found an entry in the bilingual dictionary
     if (indexEntry) {
       // Fetch full entry from .u8 file
-      console.log('[Dict] Fetching entry at offset:', indexEntry.offset, 'length:', indexEntry.length);
+      this._debug('[Dict] Fetching entry at offset:', indexEntry.offset, 'length:', indexEntry.length);
       const entry = await this.fetchEntry(indexEntry.offset, indexEntry.length);
-      console.log('[Dict] Fetched entry:', entry);
+      this._debug('[Dict] Fetched entry:', entry);
 
       // If we also found a conjugation, show conjugation first and bilingual second
       if (conjugationEntry) {
-        console.log('[Dict] Word found in both bilingual and conjugation dictionaries');
+        this._debug('[Dict] Word found in both bilingual and conjugation dictionaries');
         // Make conjugation the primary entry
         conjugationEntry.alternateDefinition = {
           type: 'bilingual',
@@ -581,7 +593,7 @@ class Dictionary {
           translations: entry.translations,
           definition: entry.definition
         };
-        console.log('[Dict] Showing conjugation first, bilingual second');
+        this._debug('[Dict] Showing conjugation first, bilingual second');
         return conjugationEntry;
       }
 
@@ -596,7 +608,7 @@ class Dictionary {
     // If still not found, try removing contractions
     const contractionResult = this.tryRemoveContraction(normalizedWord);
     if (contractionResult) {
-      console.log('[Dict] Trying after removing contraction:', contractionResult.prefix, '+', contractionResult.word);
+      this._debug('[Dict] Trying after removing contraction:', contractionResult.prefix, '+', contractionResult.word);
 
       // Try lookup with the de-contracted word (recursive call will check both dictionaries)
       const decontractedEntry = await this.lookup(contractionResult.word, followingText);
@@ -608,7 +620,7 @@ class Dictionary {
       }
     }
 
-    console.log('[Dict] Word not found in either dictionary (even after heuristics)');
+    this._debug('[Dict] Word not found in either dictionary (even after heuristics)');
     return null;
   }
 
@@ -617,15 +629,15 @@ class Dictionary {
    * Returns array of all entries found for the word
    */
   async lookupAll(word, followingText = '') {
-    console.log('[Dict] Looking up all definitions for:', word, 'with following text:', followingText);
+    this._debug('[Dict] Looking up all definitions for:', word, 'with following text:', followingText);
 
     if (!this.indexLoaded) {
-      console.log('[Dict] Index not loaded, loading now...');
+      this._debug('[Dict] Index not loaded, loading now...');
       await this.loadIndex();
     }
 
     if (!this.indexLoaded) {
-      console.log('[Dict] Failed to load index');
+      this._debug('[Dict] Failed to load index');
       return [];
     }
 
@@ -634,20 +646,20 @@ class Dictionary {
     normalizedWord = normalizedWord.replace(/'/g, '\u2019');
     // Apply smart casing: keep acronyms, lowercase everything else
     normalizedWord = this.getSearchTerm(normalizedWord);
-    console.log('[Dict] Normalized word:', normalizedWord);
+    this._debug('[Dict] Normalized word:', normalizedWord);
 
     // If we have following text, try to find multi-word expressions first
     if (followingText && followingText.trim().length > 0) {
       const multiWordResult = await this.lookupMultiWord(normalizedWord, followingText);
       if (multiWordResult) {
-        console.log('[Dict] Found multi-word expression:', multiWordResult.headword);
+        this._debug('[Dict] Found multi-word expression:', multiWordResult.headword);
         return [multiWordResult];
       }
     }
 
     // Try exact match - get ALL entries
     let indexEntries = this.binarySearchAll(normalizedWord);
-    console.log('[Dict] Binary search found', indexEntries.length, 'entries');
+    this._debug('[Dict] Binary search found', indexEntries.length, 'entries');
 
     // If found, fetch all entries
     if (indexEntries.length > 0) {
@@ -665,7 +677,7 @@ class Dictionary {
 
     // If no exact match, try heuristics (plural, feminine, etc)
     // First try plurals
-    console.log('[Dict] Exact match not found, trying heuristics...');
+    this._debug('[Dict] Exact match not found, trying heuristics...');
     const candidates = this.getPluralCandidates(normalizedWord);
 
     for (const candidate of candidates) {
@@ -707,7 +719,7 @@ class Dictionary {
     // If still not found, try removing contractions
     const contractionResult = this.tryRemoveContraction(normalizedWord);
     if (contractionResult) {
-      console.log('[Dict] Trying after removing contraction:', contractionResult.prefix, '+', contractionResult.word);
+      this._debug('[Dict] Trying after removing contraction:', contractionResult.prefix, '+', contractionResult.word);
 
       // Try lookupAll with the de-contracted word (recursive call will check both dictionaries)
       const decontractedEntries = await this.lookupAll(contractionResult.word, followingText);
@@ -716,7 +728,7 @@ class Dictionary {
       }
     }
 
-    console.log('[Dict] Word not found in dictionary');
+    this._debug('[Dict] Word not found in dictionary');
     return [];
   }
 
@@ -725,7 +737,7 @@ class Dictionary {
    * Returns the longest matching expression, or null if no multi-word match found
    */
   async lookupMultiWord(firstWord, followingText) {
-    console.log('[Dict] Looking for multi-word expressions starting with:', firstWord);
+    this._debug('[Dict] Looking for multi-word expressions starting with:', firstWord);
 
     // Find the position of the first word in the index
     const firstWordLower = firstWord.toLowerCase();
@@ -786,7 +798,7 @@ class Dictionary {
       currentIndex++;
     }
 
-    console.log('[Dict] Found', candidates.length, 'candidate expressions');
+    this._debug('[Dict] Found', candidates.length, 'candidate expressions');
 
     // Now match against the following text
     // Normalize following text
@@ -822,7 +834,7 @@ class Dictionary {
     }
 
     if (longestMatch && longestMatchWordCount > 1) {
-      console.log('[Dict] Found multi-word match:', longestMatch.headword, '(' + longestMatchWordCount + ' words)');
+      this._debug('[Dict] Found multi-word match:', longestMatch.headword, '(' + longestMatchWordCount + ' words)');
       const entry = await this.fetchEntry(longestMatch.offset, longestMatch.length);
       if (entry) {
         entry.matchedWords = longestMatchWordCount; // Add metadata about how many words were matched
@@ -830,7 +842,7 @@ class Dictionary {
       return entry;
     }
 
-    console.log('[Dict] No multi-word expression matched');
+    this._debug('[Dict] No multi-word expression matched');
     return null;
   }
 
@@ -839,17 +851,17 @@ class Dictionary {
    */
   async lookupConjugation(conjugatedForm) {
     if (!this.conjugationIndexLoaded) {
-      console.log('[Dict] Conjugation index not loaded');
+      this._debug('[Dict] Conjugation index not loaded');
       return null;
     }
 
     const indexEntry = this.binarySearchConjugation(conjugatedForm);
     if (!indexEntry) {
-      console.log('[Dict] Conjugated form not found in conjugation index');
+      this._debug('[Dict] Conjugated form not found in conjugation index');
       return null;
     }
 
-    console.log('[Dict] Found conjugation at offset:', indexEntry.offset);
+    this._debug('[Dict] Found conjugation at offset:', indexEntry.offset);
     const conjugationEntry = await this.fetchConjugationEntries(indexEntry.offset, conjugatedForm);
 
     return conjugationEntry;
@@ -860,11 +872,11 @@ class Dictionary {
    * Returns conjugation info augmented with infinitive entry, or null if not found
    */
   async lookupConjugationWithHeuristics(normalizedWord) {
-    console.log('[Dict] Trying conjugation lookup with heuristics...');
+    this._debug('[Dict] Trying conjugation lookup with heuristics...');
 
     // Skip conjugation lookup for acronyms (all-uppercase words or contractions with uppercase)
     if (this.isAcronym(normalizedWord)) {
-      console.log('[Dict] Skipping conjugation lookup for acronym:', normalizedWord);
+      this._debug('[Dict] Skipping conjugation lookup for acronym:', normalizedWord);
       return null;
     }
 
@@ -873,14 +885,14 @@ class Dictionary {
 
     // If not found and word ends with 'e' (possible feminine form), try masculine form
     if (!conjugationResult && normalizedWord.endsWith('e')) {
-      console.log('[Dict] Conjugation lookup failed, trying to convert feminine to masculine...');
+      this._debug('[Dict] Conjugation lookup failed, trying to convert feminine to masculine...');
       const masculineCandidates = this.getFeminineCandidates(normalizedWord);
 
       for (const candidate of masculineCandidates) {
-        console.log('[Dict] Trying conjugation lookup with masculine candidate:', candidate);
+        this._debug('[Dict] Trying conjugation lookup with masculine candidate:', candidate);
         conjugationResult = await this.lookupConjugation(candidate);
         if (conjugationResult) {
-          console.log('[Dict] Found conjugation with masculine form:', candidate);
+          this._debug('[Dict] Found conjugation with masculine form:', candidate);
           break;
         }
       }
@@ -888,26 +900,26 @@ class Dictionary {
 
     // If still not found and word ends with 's' (possible plural), try singular forms
     if (!conjugationResult && normalizedWord.endsWith('s')) {
-      console.log('[Dict] Conjugation lookup failed, trying to convert plural to singular...');
+      this._debug('[Dict] Conjugation lookup failed, trying to convert plural to singular...');
       const singularCandidates = this.getPluralCandidates(normalizedWord);
 
       for (const candidate of singularCandidates) {
-        console.log('[Dict] Trying conjugation lookup with singular candidate:', candidate);
+        this._debug('[Dict] Trying conjugation lookup with singular candidate:', candidate);
         conjugationResult = await this.lookupConjugation(candidate);
         if (conjugationResult) {
-          console.log('[Dict] Found conjugation with singular form:', candidate);
+          this._debug('[Dict] Found conjugation with singular form:', candidate);
           break;
         }
 
         // If singular still not found and it ends with 'e', try feminine-to-masculine
         if (!conjugationResult && candidate.endsWith('e')) {
-          console.log('[Dict] Trying feminine-to-masculine on plural candidate:', candidate);
+          this._debug('[Dict] Trying feminine-to-masculine on plural candidate:', candidate);
           const feminineToMasculine = this.getFeminineCandidates(candidate);
           for (const mascCandidate of feminineToMasculine) {
-            console.log('[Dict] Trying conjugation with masculine form from plural:', mascCandidate);
+            this._debug('[Dict] Trying conjugation with masculine form from plural:', mascCandidate);
             conjugationResult = await this.lookupConjugation(mascCandidate);
             if (conjugationResult) {
-              console.log('[Dict] Found conjugation with masculine form from plural:', mascCandidate);
+              this._debug('[Dict] Found conjugation with masculine form from plural:', mascCandidate);
               break;
             }
           }
@@ -921,24 +933,24 @@ class Dictionary {
     if (!conjugationResult) {
       const contractionResult = this.tryRemoveContraction(normalizedWord);
       if (contractionResult) {
-        console.log('[Dict] Trying conjugation after removing contraction:', contractionResult.prefix, '+', contractionResult.word);
+        this._debug('[Dict] Trying conjugation after removing contraction:', contractionResult.prefix, '+', contractionResult.word);
         // Recursively lookup the de-contracted word
         return await this.lookupConjugationWithHeuristics(contractionResult.word);
       }
     }
 
     if (!conjugationResult) {
-      console.log('[Dict] No conjugation found even with heuristics');
+      this._debug('[Dict] No conjugation found even with heuristics');
       return null;
     }
 
-    console.log('[Dict] Found conjugation, looking up infinitive:', conjugationResult.infinitive);
+    this._debug('[Dict] Found conjugation, looking up infinitive:', conjugationResult.infinitive);
 
     // Now lookup the infinitive in the main dictionary
     const infinitiveEntry = await this.lookupInfinitive(conjugationResult.infinitive);
 
     if (!infinitiveEntry) {
-      console.log('[Dict] Could not find infinitive in dictionary');
+      this._debug('[Dict] Could not find infinitive in dictionary');
       return null;
     }
 
@@ -955,7 +967,7 @@ class Dictionary {
       infinitiveEntry.pronunciation = conjugationResult.ipas;
     }
 
-    console.log('[Dict] Successfully augmented infinitive entry with conjugation info');
+    this._debug('[Dict] Successfully augmented infinitive entry with conjugation info');
     return infinitiveEntry;
   }
 
@@ -1069,7 +1081,7 @@ class Dictionary {
   isValidPluralTransformation(pluralForm, singularForm, pos) {
     // If no POS, we can't validate - but allow common patterns for nouns
     if (!pos || pos.trim() === '') {
-      console.log('[Dict] No POS provided, allowing common noun plural patterns');
+      this._debug('[Dict] No POS provided, allowing common noun plural patterns');
       // Allow common noun patterns even without POS
       if (pluralForm.endsWith('aux') && singularForm.endsWith('al')) return true;
       if (pluralForm.endsWith('aux') && singularForm.endsWith('au')) return true;
@@ -1240,7 +1252,7 @@ class Dictionary {
   isValidFeminineTransformation(feminineForm, masculineForm, pos, gender) {
     // If no POS or gender, allow common patterns
     if (!pos || pos.trim() === '' || !gender || gender.trim() === '') {
-      console.log('[Dict] No POS/gender provided, allowing common feminine patterns');
+      this._debug('[Dict] No POS/gender provided, allowing common feminine patterns');
       // Check if this looks like a valid feminine transformation
       if (!feminineForm.endsWith('e')) return false;
 

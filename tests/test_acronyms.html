@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,24 +12,28 @@
             line-height: 1.6;
             background: #fafafa;
         }
+
         h1 {
             color: #333;
             border-bottom: 3px solid #007bff;
             padding-bottom: 10px;
         }
+
         h2 {
             color: #0066cc;
             margin-top: 30px;
             border-left: 4px solid #007bff;
             padding-left: 10px;
         }
+
         .test-section {
             margin: 15px 0;
             padding: 15px;
             background: #fff;
             border-left: 4px solid #28a745;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
+
         .acronym {
             color: #0066cc;
             font-weight: bold;
@@ -37,29 +42,35 @@
             padding: 2px 4px;
             border-radius: 3px;
         }
+
         .acronym:hover {
             background-color: #e8f0ff;
         }
+
         .definition {
             font-size: 0.9em;
             color: #666;
             margin-top: 5px;
             font-style: italic;
         }
+
         .test-list {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
         }
+
         .test-item {
             padding: 12px;
             background: #f9f9f9;
             border-radius: 5px;
             border-left: 3px solid #007bff;
         }
+
         .test-item p {
             margin: 5px 0;
         }
+
         .intro-box {
             background: #e3f2fd;
             border-left: 4px solid #2196F3;
@@ -67,16 +78,19 @@
             margin: 20px 0;
             border-radius: 4px;
         }
+
         .intro-box strong {
             color: #1976D2;
         }
     </style>
 </head>
+
 <body>
     <h1>🧪 French Acronyms Test Suite</h1>
 
     <div class="intro-box">
-        <strong>Purpose:</strong> Test the extension's ability to recognize and look up all-uppercase French acronyms with proper definitions.
+        <strong>Purpose:</strong> Test the extension's ability to recognize and look up all-uppercase French acronyms
+        with proper definitions.
         <br><strong>Expected behavior:</strong> Popup should display the correct definition for each acronym.
         <br><strong>Total acronyms tested:</strong> 30 (20 random + 10 with l' contractions)
     </div>
@@ -211,6 +225,22 @@
         </div>
     </div>
 
+    <h2>Special Character Tests</h2>
+    <div class="test-list">
+        <div class="test-item">
+            <p>Hover: <span class="acronym">ACD</span></p>
+            <div class="definition">differential scanning calorimetry</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">AAAA-MM-JJ</span></p>
+            <div class="definition">YYYY-MM-DD</div>
+        </div>
+        <div class="test-item">
+            <p>Hover: <span class="acronym">AAAAMMJJ</span></p>
+            <div class="definition">YYYYMMDD</div>
+        </div>
+    </div>
+
     <h2>Test Results Checklist</h2>
     <div class="test-section">
         <ul style="line-height: 1.8;">
@@ -222,61 +252,6 @@
             <li>✓ No heuristics applied to acronyms (no plural/feminine conversion)</li>
         </ul>
     </div>
-
-    <script>
-        console.log('[Test] Acronyms test suite loaded - 30 acronyms ready for testing');
-    </script>
 </body>
-</html>
-    </div>
 
-    <h2>Test 3: Three-letter acronyms</h2>
-    <div class="test-section">
-        <p>Hover over <span class="acronym">ACD</span> (analytical chemistry definition)</p>
-        <div class="description">Entry: ACD - n, f - a.se.de - differential scanning calorimetry;DSC</div>
-    </div>
-
-    <h2>Test 4: Four-letter acronyms</h2>
-    <div class="test-section">
-        <p>Hover over <span class="acronym">AAAA</span></p>
-        <div class="description">Entry: AAAA - n, m - a.a.a.a - AAAA</div>
-    </div>
-
-    <h2>Test 5: Acronyms with hyphens</h2>
-    <div class="test-section">
-        <p>Hover over <span class="acronym">AAAA-MM-JJ</span> (date format)</p>
-        <div class="description">Entry: AAAA-MM-JJ - n - (no pronunciation) - YYYY-MM-DD</div>
-    </div>
-
-    <h2>Test 6: Acronyms without spaces (8 letters)</h2>
-    <div class="test-section">
-        <p>Hover over <span class="acronym">AAAAMMJJ</span> (date format)</p>
-        <div class="description">Entry: AAAAMMJJ - n - (no pronunciation) - YYYYMMDD</div>
-    </div>
-
-    <h2>Test 7: More acronyms to test</h2>
-    <div class="test-section">
-        <p>Try hovering over these acronyms:</p>
-        <ul>
-            <li><span class="acronym">AAS</span> - amino acid sequencing</li>
-            <li><span class="acronym">ABI</span> - automated biometric identification</li>
-            <li><span class="acronym">ACAB</span> - a common slang acronym</li>
-            <li><span class="acronym">ACID</span> - acid</li>
-            <li><span class="acronym">ACL</span> - anterior cruciate ligament</li>
-        </ul>
-    </div>
-
-    <h2>Expected Results</h2>
-    <div class="test-section">
-        <p>✓ All acronyms should be looked up as-is (not lowercased)</p>
-        <p>✓ The popup should display the correct definitions</p>
-        <p>✓ Pronunciation and part of speech should be visible</p>
-        <p>✓ Acronyms with hyphens or numbers should work correctly</p>
-    </div>
-
-    <script>
-        // Log when page loads
-        console.log('[Test] Acronyms test page loaded');
-    </script>
-</body>
 </html>

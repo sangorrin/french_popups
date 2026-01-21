@@ -87,3 +87,15 @@ Have questions, found a bug, or want to request a feature?
 - Open an issue on the extension's [GitHub repository](https://github.com/sangorrin/french_popups/issues)
 - Contact via the Chrome Web Store support tab (TODO)
 
+## 🛠️ Debugging
+
+By default, dictionary lookup logs are hidden (sent to `console.debug`). If you need to see the full lookup trace in the Chrome console:
+
+1.  Open the Chrome Developer Tools (`F12` or `Cmd+Opt+I`).
+2.  Go to the **Console** tab.
+3.  Type the following and press Enter:
+    ```javascript
+    window.FRENCH_POPUPS_DEBUG = true;
+    ```
+4.  Alternatively, ensure the **"Verbose"** log level is checked in the console filter settings.
+
