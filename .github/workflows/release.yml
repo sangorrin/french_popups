@@ -72,7 +72,7 @@ jobs:
 
           # Copy icons
           mkdir -p build/french-popups/icons
-          cp -r icons/* build/french-popups/icons/
+          cp icons/*.png build/french-popups/icons/
 
           # Copy generated dictionary data (excluding scripts)
           mkdir -p build/french-popups/data
