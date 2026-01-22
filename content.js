@@ -14,6 +14,7 @@ const HIDE_DELAY = 200; // ms - delay before hiding popup when mouse moves away
 const lastMouseStop = { x: 0, y: 0 };
 let mouseMoveTimer = null;
 let hidePopupTimer = null;
+let suppressedTitles = []; // Track title attributes to restore later
 
 // Word pattern: letters/numbers, optionally followed by apostrophes/periods/hyphens and more letters/numbers/periods/hyphens
 const WORD_REGEX = /[\p{L}\p{N}]+(?:['''.\-][\p{L}\p{N}.\-]+)*/u;
@@ -144,8 +145,38 @@ async function handleMouseStop(e) {
   const wordData = getHitWord(e);
 
   if (wordData && wordData.word && wordData.word.length >= 2) {
+    // Suppress titles to avoid overlapping tooltips
+    suppressTitles(hitElement);
     await showPopup(wordData.word, wordData.followingText, e.clientX, e.clientY);
   }
+}
+
+/**
+ * Temporarily remove title/alt attributes to prevent native tooltips from overlapping
+ */
+function suppressTitles(element) {
+  let current = element;
+  while (current && current !== document.body) {
+    if (current.title) {
+      suppressedTitles.push({ element: current, attr: 'title', value: current.title });
+      current.title = '';
+    }
+    if (current.alt) {
+      suppressedTitles.push({ element: current, attr: 'alt', value: current.alt });
+      current.alt = '';
+    }
+    current = current.parentElement;
+  }
+}
+
+/**
+ * Restore suppressed title/alt attributes
+ */
+function restoreTitles() {
+  suppressedTitles.forEach(item => {
+    item.element[item.attr] = item.value;
+  });
+  suppressedTitles = [];
 }
 
 /**
@@ -641,6 +672,7 @@ function hidePopup() {
   if (currentPopup) {
     currentPopup.remove();
     currentPopup = null;
+    restoreTitles();
   }
 }
 
