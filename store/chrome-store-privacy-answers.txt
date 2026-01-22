@@ -21,8 +21,7 @@ This ensures a consistent user experience across sessions without transmitting a
 
 Host permission justification (1000 chars max):
 
-French Popups requires the "<all_urls>" match pattern for its content scripts so that the dictionary functionality can work automatically on any webpage where a user encounters French text. This "always-on" behavior is essential for a hover-to-translate tool. We have removed the "host_permissions" field and the "activeTab" permission to be as restrictive as possible, requesting access ONLY for the injection of the translation logic script. We do not monitor browsing history, collect user data, or make any external network requests. All dictionary processing is done entirely offline within the content script.
-
+French Popups requires the "<all_urls>" match pattern for its content scripts so that the dictionary functionality can work automatically on any webpage where a user encounters French text. This "always-on" behavior is essential for a hover-to-translate tool. We do not monitor browsing history, collect user data, or make any external network requests. All dictionary processing is done entirely offline within the content script.
 
 
 REMOTE CODE
