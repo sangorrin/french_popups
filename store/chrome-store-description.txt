@@ -2,10 +2,9 @@ Master French while browsing with French Popups. Hover over any French word on a
 
 🚀 HOW TO USE
 1. Install the extension.
-2. Click the extension icon in your toolbar and click "Activate Extension."
-3. Navigate to any website containing French text.
-4. Hover your mouse over any French word to see the instant translation popup.
-5. Deactivate the extension globally when you finish your study session.
+2. Navigate to any website containing French text.
+3. Hover your mouse over any French word to see the instant translation popup.
+4. Click "Deactivate Extension" when you finish your study session.
 
 🌟 KEY FEATURES
 • Instant Translations: Simply hover over words to see definitions—no clicking or copying required.
