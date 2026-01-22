@@ -52,8 +52,7 @@ This extension does **NOT** use any third-party services, analytics, or tracking
 Our extension requests the following permissions:
 
 1. **storage**: To save your language preference locally on your device
-2. **activeTab**: To enable the extension's features on the current tab when the user interacts with the extension.
-3. **Content Script Matching**: To detect French words on any webpage and provide instant hover translations when enabled.
+2. **Content Script Matching**: To detect French words on any webpage and provide instant hover translations when enabled.
 
 ## Offline Dictionary Data
 
@@ -115,5 +114,5 @@ All data is stored securely using Chrome's built-in storage APIs. Since no data 
 
 ---
 
-**Summary:** This extension stores only three parameters (language preference, activation state, and definition visibility) locally on your device to provide word translations. No personal information is collected, no data is transmitted externally, and you maintain complete control over your data. All dictionary lookups happen offline on your device. We use the most restrictive permissions possible, including the "activeTab" permission, to ensure your security while browsing.
+**Summary:** This extension stores only three parameters (language preference, activation state, and definition visibility) locally on your device to provide word translations. No personal information is collected, no data is transmitted externally, and you maintain complete control over your data. All dictionary lookups happen offline on your device. We use restrictive content script matching to ensure your security while browsing.
 

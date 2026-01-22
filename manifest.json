@@ -4,8 +4,7 @@
   "version": "1.0.1",
   "description": "Hover over French words to see instant translations in your preferred language. Supports 23 languages with offline dictionaries.",
   "permissions": [
-    "storage",
-    "activeTab"
+    "storage"
   ],
   "background": {
     "service_worker": "background.js"

@@ -21,11 +21,8 @@ This ensures a consistent user experience across sessions without transmitting a
 
 Host permission justification (1000 chars max):
 
-French Popups requires access to all websites via the content_scripts "matches" field because it is designed to assist learners on any website that contains French text (e.g., news sites, blogs, or educational platforms). This allows the extension to detect text under the cursor and display the translation popup dynamically. We have replaced broad "host_permissions" with the "activeTab" permission to be more restrictive, using site access only for the "hover-to-translate" feature. We do not monitor browsing history or collect any data from visited sites.
+French Popups requires the "<all_urls>" match pattern for its content scripts so that the dictionary functionality can work automatically on any webpage where a user encounters French text. This "always-on" behavior is essential for a hover-to-translate tool. We have removed the "host_permissions" field and the "activeTab" permission to be as restrictive as possible, requesting access ONLY for the injection of the translation logic script. We do not monitor browsing history, collect user data, or make any external network requests. All dictionary processing is done entirely offline within the content script.
 
-ActiveTab justification (1000 chars max):
-
-The "activeTab" permission is used to allow the extension to function immediately on the current page when the user interacts with the extension's popup menu or actions. This provides a more secure way to interact with the current tab's content for the purpose of enabling the translation features.
 
 
 REMOTE CODE
@@ -76,7 +73,7 @@ French Popups is a privacy-first, offline educational extension that:
 - Stores only 3 preferences (targetLanguage, globallyEnabled, showDefinitions) locally on the device.
 - Uses NO remote code or external API dependencies.
 - Features entirely offline dictionary lookups.
-- Uses the "activeTab" permission and manifest-declared content scripts solely to provide translation functionality on webpages containing French text.
+- Uses manifest-declared content scripts solely to provide translation functionality on webpages containing French text.
 - Is open-source and transparent.
 
 All requested permissions are strictly limited to the functional requirements of providing instant hover translations for French learners.
