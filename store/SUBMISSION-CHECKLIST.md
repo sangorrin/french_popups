@@ -11,7 +11,7 @@
 - [x] **Documentation:** `README.md` comprehensive documentation
 - [x] **Data Files:** Dictionaries and lookups (`data/`, `dict.js`)
 - [x] **Extension Name:** French Popups
-- [x] **Contact Email:** daniel.sangorrin+frenchpopups@gmail.com (Verified)
+- [x] **Contact Email:** [EMAIL_ADDRESS] (Verified)
 - [x] **Language:** English
 - [x] **Developer Identity:** Developer name/company name decided
 - [x] **Category:** Education
