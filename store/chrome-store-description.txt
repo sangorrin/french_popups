@@ -43,5 +43,5 @@ Dictionary data is derived from WikDict and Kaikki.org (Wiktionary), licensed un
 
 ==========================================================
 Copyright (C) 2026 Daniel Sangorrin
-Current release: v1.0.1 — Initial store release with 23 languages and offline support.
+Current release: v1.0.2 — Initial store release with 23 languages and offline support.
 See the full changelog on GitHub: https://github.com/sangorrin/french_popups
