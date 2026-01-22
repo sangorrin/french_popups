@@ -2,7 +2,7 @@
 
 ## 📋 PRE-SUBMISSION CHECKLIST
 
-### ✅ Completed Items (In Code/Repository)
+### ✅ Completed Items
 - [x] **Icons:** 4 dimensions (16x16, 32x32, 48x48, 128x128)
 - [x] **Privacy Policy:** `privacy-policy.md` created
 - [x] **Manifest:** `manifest.json` properly configured
@@ -18,7 +18,7 @@
 
 ---
 
-## 📝 STORE LISTING ASSETS (TO DO)
+## 📝 STORE LISTING ASSETS
 
 ### Visual Assets
 - [x] **5 Screenshots** (1280x800 pixels) - Using `nagoya_wiki.html`
