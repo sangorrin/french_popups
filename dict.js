@@ -854,6 +854,7 @@ class Dictionary {
       if (backupEntries.length > 0) {
         this._debug('[Dict] Found', backupEntries.length, 'entries in English backup');
         // Mark entries as coming from backup
+        // Safe to mutate: entries are freshly parsed objects created in fetchBackupEntry()
         backupEntries.forEach(entry => {
           entry.isBackup = true;
           entry.backupLanguage = this.currentLanguage;

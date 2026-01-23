@@ -534,12 +534,14 @@ async function showPopup(word, followingText, x, y) {
     };
     // Find first backup entry to get the language name
     const backupEntry = entries.find(e => e.isBackup);
-    const languageName = languageNames[backupEntry.backupLanguage] || backupEntry.backupLanguage;
-    popupHTML += `
-      <div class="french-popup-backup-warning">
-        ⚠️ Word not found in ${languageName} dictionary, showing English definition
-      </div>
-    `;
+    if (backupEntry && backupEntry.backupLanguage) {
+      const languageName = languageNames[backupEntry.backupLanguage] || backupEntry.backupLanguage;
+      popupHTML += `
+        <div class="french-popup-backup-warning">
+          ⚠️ Word not found in ${languageName} dictionary, showing English definition
+        </div>
+      `;
+    }
   }
 
   // If we have a conjugation, show it first
