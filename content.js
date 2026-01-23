@@ -503,8 +503,8 @@ async function showPopup(word, followingText, x, y) {
   // Build HTML for all definitions
   let popupHTML = '';
 
-  // Check if entries are from backup dictionary
-  const isBackupResult = entries && entries.length > 0 && entries[0].isBackup;
+  // Check if any entries are from backup dictionary
+  const isBackupResult = entries && entries.length > 0 && entries.some(e => e.isBackup);
   
   // Add warning message if showing English backup results
   if (isBackupResult) {
@@ -532,7 +532,9 @@ async function showPopup(word, followingText, x, y) {
       'bul': 'Bulgarian',
       'ind': 'Indonesian'
     };
-    const languageName = languageNames[entries[0].backupLanguage] || entries[0].backupLanguage;
+    // Find first backup entry to get the language name
+    const backupEntry = entries.find(e => e.isBackup);
+    const languageName = languageNames[backupEntry.backupLanguage] || backupEntry.backupLanguage;
     popupHTML += `
       <div class="french-popup-backup-warning">
         ⚠️ Word not found in ${languageName} dictionary, showing English definition
