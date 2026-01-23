@@ -14,6 +14,9 @@ class Dictionary {
     this.conjugationIndexCache = null;
     this.conjugationIndexLoaded = false;
     this.debug = false;
+    // Backup dictionary (English) for non-English languages
+    this.backupIndexCache = null;
+    this.backupIndexLoaded = false;
   }
 
   /**
@@ -34,6 +37,10 @@ class Dictionary {
     this.currentLanguage = language || 'eng';
     await this.loadIndex();
     await this.loadConjugationIndex();
+    // Load backup English dictionary if using a non-English language
+    if (this.currentLanguage !== 'eng') {
+      await this.loadBackupIndex();
+    }
   }
 
   /**
@@ -69,6 +76,43 @@ class Dictionary {
     } catch (error) {
       console.error('[French Popups] Error loading index:', error);
       this.indexLoaded = false;
+      return false;
+    }
+  }
+
+  /**
+   * Load backup English dictionary index for fallback lookups
+   */
+  async loadBackupIndex() {
+    const indexPath = chrome.runtime.getURL('data/fra-eng.idx');
+
+    try {
+      const response = await fetch(indexPath);
+      if (!response.ok) {
+        throw new Error(`Failed to load backup index: ${response.status}`);
+      }
+
+      const indexText = await response.text();
+
+      // Parse index into array of [headword, offset, length]
+      this.backupIndexCache = indexText
+        .trim()
+        .split('\n')
+        .map(line => {
+          const [headword, offset, length] = line.split('\t');
+          return {
+            headword: headword,
+            offset: parseInt(offset, 10),
+            length: parseInt(length, 10)
+          };
+        });
+
+      this.backupIndexLoaded = true;
+      this._debug(`[French Popups] Loaded ${this.backupIndexCache.length} backup English entries`);
+      return true;
+    } catch (error) {
+      console.error('[French Popups] Error loading backup index:', error);
+      this.backupIndexLoaded = false;
       return false;
     }
   }
@@ -217,6 +261,56 @@ class Dictionary {
     let currentIndex = startIndex;
     while (currentIndex < this.indexCache.length && this.indexCache[currentIndex].headword === searchTerm) {
       results.push(this.indexCache[currentIndex]);
+      currentIndex++;
+    }
+
+    return results;
+  }
+
+  /**
+   * Binary search for ALL entries in backup (English) dictionary
+   * Used when primary dictionary has no results
+   */
+  binarySearchAllBackup(headword) {
+    if (!this.backupIndexCache || this.backupIndexCache.length === 0) {
+      return [];
+    }
+
+    const searchTerm = this.getSearchTerm(headword);
+    let left = 0;
+    let right = this.backupIndexCache.length - 1;
+    let foundIndex = -1;
+
+    // Binary search to find any occurrence
+    while (left <= right) {
+      const mid = Math.floor((left + right) / 2);
+      const entry = this.backupIndexCache[mid];
+
+      if (entry.headword === searchTerm) {
+        foundIndex = mid;
+        break;
+      } else if (entry.headword < searchTerm) {
+        left = mid + 1;
+      } else {
+        right = mid - 1;
+      }
+    }
+
+    if (foundIndex === -1) {
+      return [];
+    }
+
+    // Scan backwards to find first occurrence
+    let startIndex = foundIndex;
+    while (startIndex > 0 && this.backupIndexCache[startIndex - 1].headword === searchTerm) {
+      startIndex--;
+    }
+
+    // Scan forwards to collect all occurrences
+    const results = [];
+    let currentIndex = startIndex;
+    while (currentIndex < this.backupIndexCache.length && this.backupIndexCache[currentIndex].headword === searchTerm) {
+      results.push(this.backupIndexCache[currentIndex]);
       currentIndex++;
     }
 
@@ -393,6 +487,31 @@ class Dictionary {
       return this.parseEntry(text);
     } catch (error) {
       console.error('[French Popups] Error fetching entry:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Fetch dictionary entry from backup English .u8 file
+   */
+  async fetchBackupEntry(offset, length) {
+    const u8Path = chrome.runtime.getURL('data/fra-eng.u8');
+
+    try {
+      const response = await fetch(u8Path, {
+        headers: {
+          'Range': `bytes=${offset}-${offset + length - 1}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch backup entry: ${response.status}`);
+      }
+
+      const text = await response.text();
+      return this.parseEntry(text);
+    } catch (error) {
+      console.error('[French Popups] Error fetching backup entry:', error);
       return null;
     }
   }
@@ -728,7 +847,96 @@ class Dictionary {
       }
     }
 
+    // If not found in primary dictionary and we have a backup (non-English language), try backup
+    if (this.currentLanguage !== 'eng' && this.backupIndexLoaded) {
+      this._debug('[Dict] Word not found in', this.currentLanguage, 'dictionary, trying English backup...');
+      const backupEntries = await this.lookupAllBackup(normalizedWord);
+      if (backupEntries.length > 0) {
+        this._debug('[Dict] Found', backupEntries.length, 'entries in English backup');
+        // Mark entries as coming from backup
+        backupEntries.forEach(entry => {
+          entry.isBackup = true;
+          entry.backupLanguage = this.currentLanguage;
+        });
+        return backupEntries;
+      }
+    }
+
     this._debug('[Dict] Word not found in dictionary');
+    return [];
+  }
+
+  /**
+   * Look up a French word in the backup English dictionary
+   * Returns array of all entries found for the word in backup dictionary
+   * This is used as a fallback when the primary (non-English) dictionary has no results
+   */
+  async lookupAllBackup(normalizedWord) {
+    this._debug('[Dict] Looking up in backup English dictionary:', normalizedWord);
+
+    if (!this.backupIndexLoaded) {
+      this._debug('[Dict] Backup index not loaded');
+      return [];
+    }
+
+    // Try exact match in backup dictionary
+    let indexEntries = this.binarySearchAllBackup(normalizedWord);
+    this._debug('[Dict] Backup binary search found', indexEntries.length, 'entries');
+
+    // If found, fetch all entries from backup
+    if (indexEntries.length > 0) {
+      const entries = [];
+      for (const indexEntry of indexEntries) {
+        const entry = await this.fetchBackupEntry(indexEntry.offset, indexEntry.length);
+        if (entry) {
+          entries.push(entry);
+        }
+      }
+      if (entries.length > 0) {
+        return entries;
+      }
+    }
+
+    // Try heuristics on backup dictionary
+    // First try plurals
+    const candidates = this.getPluralCandidates(normalizedWord);
+    for (const candidate of candidates) {
+      const indexEntries = this.binarySearchAllBackup(candidate);
+      if (indexEntries.length > 0) {
+        const entries = [];
+        for (const indexEntry of indexEntries) {
+          const entry = await this.fetchBackupEntry(indexEntry.offset, indexEntry.length);
+          if (entry && this.isValidPluralTransformation(normalizedWord, entry.headword, entry.pos)) {
+            entry.searchedForm = normalizedWord;
+            entry.inflectionNote = this.getInflectionNote(normalizedWord, entry.headword, entry.pronunciation);
+            entry.pronunciation = null;
+            entries.push(entry);
+          }
+        }
+        if (entries.length > 0) return entries;
+      }
+    }
+
+    // Try feminine heuristics
+    const masculineCandidates = this.getFeminineCandidates(normalizedWord);
+    for (const candidate of masculineCandidates) {
+      const indexEntries = this.binarySearchAllBackup(candidate);
+      if (indexEntries.length > 0) {
+        const entries = [];
+        for (const indexEntry of indexEntries) {
+          const entry = await this.fetchBackupEntry(indexEntry.offset, indexEntry.length);
+          if (entry && entry.gender === 'm') {
+            entry.searchedForm = normalizedWord;
+            entry.inflectionNote = this.getInflectionNote(normalizedWord, entry.headword, entry.pronunciation);
+            entry.pronunciation = null;
+            entries.push(entry);
+          }
+        }
+        if (entries.length > 0) return entries;
+      }
+    }
+
+    this._debug('[Dict] Word not found in backup dictionary');
     return [];
   }
 
@@ -1403,6 +1611,18 @@ class Dictionary {
       this.indexCache = null;
       this.indexLoaded = false;
       await this.loadIndex();
+      
+      // Load or unload backup dictionary based on language
+      if (language !== 'eng') {
+        // Load backup for non-English languages
+        if (!this.backupIndexLoaded) {
+          await this.loadBackupIndex();
+        }
+      } else {
+        // Clear backup when switching to English
+        this.backupIndexCache = null;
+        this.backupIndexLoaded = false;
+      }
     }
   }
 }

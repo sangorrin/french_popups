@@ -503,6 +503,43 @@ async function showPopup(word, followingText, x, y) {
   // Build HTML for all definitions
   let popupHTML = '';
 
+  // Check if entries are from backup dictionary
+  const isBackupResult = entries && entries.length > 0 && entries[0].isBackup;
+  
+  // Add warning message if showing English backup results
+  if (isBackupResult) {
+    const languageNames = {
+      'ita': 'Italian',
+      'spa': 'Spanish',
+      'deu': 'German',
+      'nld': 'Dutch',
+      'por': 'Portuguese',
+      'rus': 'Russian',
+      'cat': 'Catalan',
+      'pol': 'Polish',
+      'swe': 'Swedish',
+      'ces': 'Czech',
+      'fin': 'Finnish',
+      'jpn': 'Japanese',
+      'ell': 'Greek',
+      'dan': 'Danish',
+      'gle': 'Irish',
+      'lit': 'Lithuanian',
+      'tur': 'Turkish',
+      'zho': 'Chinese',
+      'lat': 'Latin',
+      'nor': 'Norwegian',
+      'bul': 'Bulgarian',
+      'ind': 'Indonesian'
+    };
+    const languageName = languageNames[entries[0].backupLanguage] || entries[0].backupLanguage;
+    popupHTML += `
+      <div class="french-popup-backup-warning">
+        ⚠️ Word not found in ${languageName} dictionary, showing English definition
+      </div>
+    `;
+  }
+
   // If we have a conjugation, show it first
   if (conjugationEntry) {
     const displayWord = conjugationEntry.searchedForm ? conjugationEntry.searchedForm : conjugationEntry.headword;
