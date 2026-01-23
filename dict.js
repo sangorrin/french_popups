@@ -6,9 +6,12 @@
  * Handles loading and searching French dictionary files
  */
 
+// Constants
+const ENGLISH_LANGUAGE_CODE = 'eng';
+
 class Dictionary {
   constructor() {
-    this.currentLanguage = 'eng';
+    this.currentLanguage = ENGLISH_LANGUAGE_CODE;
     this.indexCache = null;
     this.indexLoaded = false;
     this.conjugationIndexCache = null;
@@ -34,11 +37,11 @@ class Dictionary {
    * Initialize dictionary with target language
    */
   async init(language) {
-    this.currentLanguage = language || 'eng';
+    this.currentLanguage = language || ENGLISH_LANGUAGE_CODE;
     await this.loadIndex();
     await this.loadConjugationIndex();
     // Load backup English dictionary if using a non-English language
-    if (this.currentLanguage !== 'eng') {
+    if (this.currentLanguage !== ENGLISH_LANGUAGE_CODE) {
       await this.loadBackupIndex();
     }
   }
@@ -848,7 +851,7 @@ class Dictionary {
     }
 
     // If not found in primary dictionary and we have a backup (non-English language), try backup
-    if (this.currentLanguage !== 'eng' && this.backupIndexLoaded) {
+    if (this.currentLanguage !== ENGLISH_LANGUAGE_CODE && this.backupIndexLoaded) {
       this._debug('[Dict] Word not found in', this.currentLanguage, 'dictionary, trying English backup...');
       const backupEntries = await this.lookupAllBackup(normalizedWord);
       if (backupEntries.length > 0) {
@@ -1614,7 +1617,7 @@ class Dictionary {
       await this.loadIndex();
       
       // Load or unload backup dictionary based on language
-      if (language !== 'eng') {
+      if (language !== ENGLISH_LANGUAGE_CODE) {
         // Load backup for non-English languages
         if (!this.backupIndexLoaded) {
           await this.loadBackupIndex();
