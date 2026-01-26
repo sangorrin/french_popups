@@ -229,7 +229,7 @@ class Dictionary {
    */
   binarySearchAll(headword, useBackup = false) {
     const indexCache = useBackup ? this.backupIndexCache : this.indexCache;
-    
+
     if (!indexCache || indexCache.length === 0) {
       return [];
     }
@@ -431,7 +431,7 @@ class Dictionary {
    * @param {boolean} useBackup - Whether to use backup (English) dictionary instead of primary
    */
   async fetchEntry(offset, length, useBackup = false) {
-    const u8Path = useBackup 
+    const u8Path = useBackup
       ? chrome.runtime.getURL(`data/${BACKUP_DICTIONARY_FILE}.u8`)
       : chrome.runtime.getURL(`data/fra-${this.currentLanguage}.u8`);
 
@@ -693,7 +693,7 @@ class Dictionary {
 
     const indexCache = useBackup ? this.backupIndexCache : this.indexCache;
     const indexLoaded = useBackup ? this.backupIndexLoaded : this.indexLoaded;
-    
+
     if (!indexLoaded) {
       this._debug('[Dict] Index not loaded');
       return [];
@@ -707,10 +707,8 @@ class Dictionary {
     this._debug('[Dict] Normalized word:', normalizedWord);
 
     // If we have following text, try to find multi-word expressions first
-    // Multi-word expressions are only checked in the primary dictionary, not backup,
-    // because the backup is used as a fallback and multi-word support is language-specific
-    if (!useBackup && followingText && followingText.trim().length > 0) {
-      const multiWordResult = await this.lookupMultiWord(normalizedWord, followingText);
+    if (followingText && followingText.trim().length > 0) {
+      const multiWordResult = await this.lookupMultiWord(normalizedWord, followingText, useBackup);
       if (multiWordResult) {
         this._debug('[Dict] Found multi-word expression:', multiWordResult.headword);
         return [multiWordResult];
@@ -789,6 +787,7 @@ class Dictionary {
     }
 
     // If not found in primary dictionary and we have a backup (non-English language), try backup
+    // This includes both single-word and multi-word expressions
     if (!useBackup && this.currentLanguage !== ENGLISH_LANGUAGE_CODE && this.backupIndexLoaded) {
       this._debug('[Dict] Word not found in', this.currentLanguage, 'dictionary, trying English backup...');
       const backupEntries = await this.lookupAll(normalizedWord, followingText, true);
@@ -811,9 +810,19 @@ class Dictionary {
   /**
    * Look up multi-word expressions starting with a given word
    * Returns the longest matching expression, or null if no multi-word match found
+   * @param {string} firstWord - The first word of the expression
+   * @param {string} followingText - Text following the first word
+   * @param {boolean} useBackup - Whether to use backup (English) dictionary instead of primary
    */
-  async lookupMultiWord(firstWord, followingText) {
-    this._debug('[Dict] Looking for multi-word expressions starting with:', firstWord);
+  async lookupMultiWord(firstWord, followingText, useBackup = false) {
+    this._debug('[Dict] Looking for multi-word expressions starting with:', firstWord, 'useBackup:', useBackup);
+
+    const indexCache = useBackup ? this.backupIndexCache : this.indexCache;
+    const indexLoaded = useBackup ? this.backupIndexLoaded : this.indexLoaded;
+
+    if (!indexLoaded || !indexCache || indexCache.length === 0) {
+      return null;
+    }
 
     // Find the position of the first word in the index
     const firstWordLower = firstWord.toLowerCase();
@@ -821,16 +830,16 @@ class Dictionary {
 
     // Binary search to find the first occurrence of entries starting with firstWord
     let left = 0;
-    let right = this.indexCache.length - 1;
+    let right = indexCache.length - 1;
 
     while (left <= right) {
       const mid = Math.floor((left + right) / 2);
-      const entry = this.indexCache[mid];
+      const entry = indexCache[mid];
 
       if (entry.headword === firstWordLower) {
         startIndex = mid;
         // Find the very first occurrence
-        while (startIndex > 0 && this.indexCache[startIndex - 1].headword === firstWordLower) {
+        while (startIndex > 0 && indexCache[startIndex - 1].headword === firstWordLower) {
           startIndex--;
         }
         break;
@@ -851,8 +860,8 @@ class Dictionary {
     let currentIndex = startIndex;
 
     // Scan forward to find all entries that start with our first word
-    while (currentIndex < this.indexCache.length) {
-      const entry = this.indexCache[currentIndex];
+    while (currentIndex < indexCache.length) {
+      const entry = indexCache[currentIndex];
       const entryWords = entry.headword.split(/\s+/);
 
       // Stop if we've moved past entries starting with our first word
@@ -911,9 +920,13 @@ class Dictionary {
 
     if (longestMatch && longestMatchWordCount > 1) {
       this._debug('[Dict] Found multi-word match:', longestMatch.headword, '(' + longestMatchWordCount + ' words)');
-      const entry = await this.fetchEntry(longestMatch.offset, longestMatch.length);
+      const entry = await this.fetchEntry(longestMatch.offset, longestMatch.length, useBackup);
       if (entry) {
         entry.matchedWords = longestMatchWordCount; // Add metadata about how many words were matched
+        if (useBackup) {
+          entry.isBackup = true;
+          entry.backupLanguage = this.currentLanguage;
+        }
       }
       return entry;
     }
@@ -1479,7 +1492,7 @@ class Dictionary {
       this.indexCache = null;
       this.indexLoaded = false;
       await this.loadIndex();
-      
+
       // Load or unload backup dictionary based on language
       if (language !== ENGLISH_LANGUAGE_CODE) {
         // Load backup for non-English languages
