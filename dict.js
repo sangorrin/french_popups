@@ -691,7 +691,6 @@ class Dictionary {
   async lookupAll(word, followingText = '', useBackup = false) {
     this._debug('[Dict] Looking up all definitions for:', word, 'with following text:', followingText, 'useBackup:', useBackup);
 
-    const indexCache = useBackup ? this.backupIndexCache : this.indexCache;
     const indexLoaded = useBackup ? this.backupIndexLoaded : this.indexLoaded;
 
     if (!indexLoaded) {
