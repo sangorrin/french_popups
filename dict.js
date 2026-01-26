@@ -223,21 +223,25 @@ class Dictionary {
   /**
    * Get ALL entries for a headword (since there can be multiple with different POS)
    * Since index is sorted, all duplicates are consecutive
+   * @param {string} headword - The word to search for
+   * @param {boolean} useBackup - Whether to use backup (English) dictionary instead of primary
    */
-  binarySearchAll(headword) {
-    if (!this.indexCache || this.indexCache.length === 0) {
+  binarySearchAll(headword, useBackup = false) {
+    const indexCache = useBackup ? this.backupIndexCache : this.indexCache;
+    
+    if (!indexCache || indexCache.length === 0) {
       return [];
     }
 
     const searchTerm = this.getSearchTerm(headword);
     let left = 0;
-    let right = this.indexCache.length - 1;
+    let right = indexCache.length - 1;
     let foundIndex = -1;
 
     // Binary search to find any occurrence
     while (left <= right) {
       const mid = Math.floor((left + right) / 2);
-      const entry = this.indexCache[mid];
+      const entry = indexCache[mid];
 
       if (entry.headword === searchTerm) {
         foundIndex = mid;
@@ -255,65 +259,15 @@ class Dictionary {
 
     // Scan backwards to find first occurrence
     let startIndex = foundIndex;
-    while (startIndex > 0 && this.indexCache[startIndex - 1].headword === searchTerm) {
+    while (startIndex > 0 && indexCache[startIndex - 1].headword === searchTerm) {
       startIndex--;
     }
 
     // Scan forwards to collect all occurrences
     const results = [];
     let currentIndex = startIndex;
-    while (currentIndex < this.indexCache.length && this.indexCache[currentIndex].headword === searchTerm) {
-      results.push(this.indexCache[currentIndex]);
-      currentIndex++;
-    }
-
-    return results;
-  }
-
-  /**
-   * Binary search for ALL entries in backup (English) dictionary
-   * Used when primary dictionary has no results
-   */
-  binarySearchAllBackup(headword) {
-    if (!this.backupIndexCache || this.backupIndexCache.length === 0) {
-      return [];
-    }
-
-    const searchTerm = this.getSearchTerm(headword);
-    let left = 0;
-    let right = this.backupIndexCache.length - 1;
-    let foundIndex = -1;
-
-    // Binary search to find any occurrence
-    while (left <= right) {
-      const mid = Math.floor((left + right) / 2);
-      const entry = this.backupIndexCache[mid];
-
-      if (entry.headword === searchTerm) {
-        foundIndex = mid;
-        break;
-      } else if (entry.headword < searchTerm) {
-        left = mid + 1;
-      } else {
-        right = mid - 1;
-      }
-    }
-
-    if (foundIndex === -1) {
-      return [];
-    }
-
-    // Scan backwards to find first occurrence
-    let startIndex = foundIndex;
-    while (startIndex > 0 && this.backupIndexCache[startIndex - 1].headword === searchTerm) {
-      startIndex--;
-    }
-
-    // Scan forwards to collect all occurrences
-    const results = [];
-    let currentIndex = startIndex;
-    while (currentIndex < this.backupIndexCache.length && this.backupIndexCache[currentIndex].headword === searchTerm) {
-      results.push(this.backupIndexCache[currentIndex]);
+    while (currentIndex < indexCache.length && indexCache[currentIndex].headword === searchTerm) {
+      results.push(indexCache[currentIndex]);
       currentIndex++;
     }
 
@@ -471,9 +425,14 @@ class Dictionary {
 
   /**
    * Fetch dictionary entry from .u8 file
+   * @param {number} offset - Byte offset in the file
+   * @param {number} length - Number of bytes to read
+   * @param {boolean} useBackup - Whether to use backup (English) dictionary instead of primary
    */
-  async fetchEntry(offset, length) {
-    const u8Path = chrome.runtime.getURL(`data/fra-${this.currentLanguage}.u8`);
+  async fetchEntry(offset, length, useBackup = false) {
+    const u8Path = useBackup 
+      ? chrome.runtime.getURL('data/fra-eng.u8')
+      : chrome.runtime.getURL(`data/fra-${this.currentLanguage}.u8`);
 
     try {
       const response = await fetch(u8Path, {
@@ -490,31 +449,6 @@ class Dictionary {
       return this.parseEntry(text);
     } catch (error) {
       console.error('[French Popups] Error fetching entry:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Fetch dictionary entry from backup English .u8 file
-   */
-  async fetchBackupEntry(offset, length) {
-    const u8Path = chrome.runtime.getURL('data/fra-eng.u8');
-
-    try {
-      const response = await fetch(u8Path, {
-        headers: {
-          'Range': `bytes=${offset}-${offset + length - 1}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch backup entry: ${response.status}`);
-      }
-
-      const text = await response.text();
-      return this.parseEntry(text);
-    } catch (error) {
-      console.error('[French Popups] Error fetching backup entry:', error);
       return null;
     }
   }
@@ -749,17 +683,18 @@ class Dictionary {
   /**
    * Look up a French word and return ALL matching definitions
    * Returns array of all entries found for the word
+   * @param {string} word - The word to look up
+   * @param {string} followingText - Text following the word (for multi-word expressions)
+   * @param {boolean} useBackup - Whether to use backup (English) dictionary instead of primary
    */
-  async lookupAll(word, followingText = '') {
-    this._debug('[Dict] Looking up all definitions for:', word, 'with following text:', followingText);
+  async lookupAll(word, followingText = '', useBackup = false) {
+    this._debug('[Dict] Looking up all definitions for:', word, 'with following text:', followingText, 'useBackup:', useBackup);
 
-    if (!this.indexLoaded) {
-      this._debug('[Dict] Index not loaded, loading now...');
-      await this.loadIndex();
-    }
-
-    if (!this.indexLoaded) {
-      this._debug('[Dict] Failed to load index');
+    const indexCache = useBackup ? this.backupIndexCache : this.indexCache;
+    const indexLoaded = useBackup ? this.backupIndexLoaded : this.indexLoaded;
+    
+    if (!indexLoaded) {
+      this._debug('[Dict] Index not loaded');
       return [];
     }
 
@@ -771,7 +706,8 @@ class Dictionary {
     this._debug('[Dict] Normalized word:', normalizedWord);
 
     // If we have following text, try to find multi-word expressions first
-    if (followingText && followingText.trim().length > 0) {
+    // (only for primary dictionary, not backup)
+    if (!useBackup && followingText && followingText.trim().length > 0) {
       const multiWordResult = await this.lookupMultiWord(normalizedWord, followingText);
       if (multiWordResult) {
         this._debug('[Dict] Found multi-word expression:', multiWordResult.headword);
@@ -780,14 +716,14 @@ class Dictionary {
     }
 
     // Try exact match - get ALL entries
-    let indexEntries = this.binarySearchAll(normalizedWord);
+    let indexEntries = this.binarySearchAll(normalizedWord, useBackup);
     this._debug('[Dict] Binary search found', indexEntries.length, 'entries');
 
     // If found, fetch all entries
     if (indexEntries.length > 0) {
       const entries = [];
       for (const indexEntry of indexEntries) {
-        const entry = await this.fetchEntry(indexEntry.offset, indexEntry.length);
+        const entry = await this.fetchEntry(indexEntry.offset, indexEntry.length, useBackup);
         if (entry) {
           entries.push(entry);
         }
@@ -803,11 +739,11 @@ class Dictionary {
     const candidates = this.getPluralCandidates(normalizedWord);
 
     for (const candidate of candidates) {
-      const indexEntries = this.binarySearchAll(candidate);
+      const indexEntries = this.binarySearchAll(candidate, useBackup);
       if (indexEntries.length > 0) {
         const entries = [];
         for (const indexEntry of indexEntries) {
-          const entry = await this.fetchEntry(indexEntry.offset, indexEntry.length);
+          const entry = await this.fetchEntry(indexEntry.offset, indexEntry.length, useBackup);
           if (entry && this.isValidPluralTransformation(normalizedWord, entry.headword, entry.pos)) {
             entry.searchedForm = normalizedWord;
             entry.inflectionNote = this.getInflectionNote(normalizedWord, entry.headword, entry.pronunciation);
@@ -822,11 +758,11 @@ class Dictionary {
     // Try feminine heuristics
     const masculineCandidates = this.getFeminineCandidates(normalizedWord);
     for (const candidate of masculineCandidates) {
-      const indexEntries = this.binarySearchAll(candidate);
+      const indexEntries = this.binarySearchAll(candidate, useBackup);
       if (indexEntries.length > 0) {
         const entries = [];
         for (const indexEntry of indexEntries) {
-          const entry = await this.fetchEntry(indexEntry.offset, indexEntry.length);
+          const entry = await this.fetchEntry(indexEntry.offset, indexEntry.length, useBackup);
           if (entry && entry.gender === 'm') {
             entry.searchedForm = normalizedWord;
             entry.inflectionNote = this.getInflectionNote(normalizedWord, entry.headword, entry.pronunciation);
@@ -843,21 +779,21 @@ class Dictionary {
     if (contractionResult) {
       this._debug('[Dict] Trying after removing contraction:', contractionResult.prefix, '+', contractionResult.word);
 
-      // Try lookupAll with the de-contracted word (recursive call will check both dictionaries)
-      const decontractedEntries = await this.lookupAll(contractionResult.word, followingText);
+      // Try lookupAll with the de-contracted word (recursive call)
+      const decontractedEntries = await this.lookupAll(contractionResult.word, followingText, useBackup);
       if (decontractedEntries.length > 0) {
         return decontractedEntries;
       }
     }
 
     // If not found in primary dictionary and we have a backup (non-English language), try backup
-    if (this.currentLanguage !== ENGLISH_LANGUAGE_CODE && this.backupIndexLoaded) {
+    if (!useBackup && this.currentLanguage !== ENGLISH_LANGUAGE_CODE && this.backupIndexLoaded) {
       this._debug('[Dict] Word not found in', this.currentLanguage, 'dictionary, trying English backup...');
-      const backupEntries = await this.lookupAllBackup(normalizedWord);
+      const backupEntries = await this.lookupAll(normalizedWord, followingText, true);
       if (backupEntries.length > 0) {
         this._debug('[Dict] Found', backupEntries.length, 'entries in English backup');
         // Mark entries as coming from backup
-        // Safe to mutate: entries are freshly parsed objects created in fetchBackupEntry()
+        // Safe to mutate: entries are freshly parsed objects created in fetchEntry()
         backupEntries.forEach(entry => {
           entry.isBackup = true;
           entry.backupLanguage = this.currentLanguage;
@@ -867,80 +803,6 @@ class Dictionary {
     }
 
     this._debug('[Dict] Word not found in dictionary');
-    return [];
-  }
-
-  /**
-   * Look up a French word in the backup English dictionary
-   * Returns array of all entries found for the word in backup dictionary
-   * This is used as a fallback when the primary (non-English) dictionary has no results
-   */
-  async lookupAllBackup(normalizedWord) {
-    this._debug('[Dict] Looking up in backup English dictionary:', normalizedWord);
-
-    if (!this.backupIndexLoaded) {
-      this._debug('[Dict] Backup index not loaded');
-      return [];
-    }
-
-    // Try exact match in backup dictionary
-    let indexEntries = this.binarySearchAllBackup(normalizedWord);
-    this._debug('[Dict] Backup binary search found', indexEntries.length, 'entries');
-
-    // If found, fetch all entries from backup
-    if (indexEntries.length > 0) {
-      const entries = [];
-      for (const indexEntry of indexEntries) {
-        const entry = await this.fetchBackupEntry(indexEntry.offset, indexEntry.length);
-        if (entry) {
-          entries.push(entry);
-        }
-      }
-      if (entries.length > 0) {
-        return entries;
-      }
-    }
-
-    // Try heuristics on backup dictionary
-    // First try plurals
-    const candidates = this.getPluralCandidates(normalizedWord);
-    for (const candidate of candidates) {
-      const indexEntries = this.binarySearchAllBackup(candidate);
-      if (indexEntries.length > 0) {
-        const entries = [];
-        for (const indexEntry of indexEntries) {
-          const entry = await this.fetchBackupEntry(indexEntry.offset, indexEntry.length);
-          if (entry && this.isValidPluralTransformation(normalizedWord, entry.headword, entry.pos)) {
-            entry.searchedForm = normalizedWord;
-            entry.inflectionNote = this.getInflectionNote(normalizedWord, entry.headword, entry.pronunciation);
-            entry.pronunciation = null;
-            entries.push(entry);
-          }
-        }
-        if (entries.length > 0) return entries;
-      }
-    }
-
-    // Try feminine heuristics
-    const masculineCandidates = this.getFeminineCandidates(normalizedWord);
-    for (const candidate of masculineCandidates) {
-      const indexEntries = this.binarySearchAllBackup(candidate);
-      if (indexEntries.length > 0) {
-        const entries = [];
-        for (const indexEntry of indexEntries) {
-          const entry = await this.fetchBackupEntry(indexEntry.offset, indexEntry.length);
-          if (entry && entry.gender === 'm') {
-            entry.searchedForm = normalizedWord;
-            entry.inflectionNote = this.getInflectionNote(normalizedWord, entry.headword, entry.pronunciation);
-            entry.pronunciation = null;
-            entries.push(entry);
-          }
-        }
-        if (entries.length > 0) return entries;
-      }
-    }
-
-    this._debug('[Dict] Word not found in backup dictionary');
     return [];
   }
 
