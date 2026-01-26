@@ -19,6 +19,15 @@
   animation: fadeIn 0.15s ease-out;
 }
 
+/* Warning message for backup dictionary results */
+.french-popup-backup-warning {
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 400;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
 /* Webkit scrollbar styling (Chrome) */
 .french-popup::-webkit-scrollbar {
   width: 8px;

@@ -503,6 +503,18 @@ async function showPopup(word, followingText, x, y) {
   // Build HTML for all definitions
   let popupHTML = '';
 
+  // Check if any entries are from backup dictionary
+  const isBackupResult = entries && entries.length > 0 && entries.some(e => e.isBackup);
+  
+  // Add warning message if showing English backup results
+  if (isBackupResult) {
+    popupHTML += `
+      <div class="french-popup-backup-warning">
+        ⚠️ Word not found, showing English definition
+      </div>
+    `;
+  }
+
   // If we have a conjugation, show it first
   if (conjugationEntry) {
     const displayWord = conjugationEntry.searchedForm ? conjugationEntry.searchedForm : conjugationEntry.headword;
