@@ -8,6 +8,7 @@
 
 // Constants
 const ENGLISH_LANGUAGE_CODE = 'eng';
+const BACKUP_DICTIONARY_FILE = 'fra-eng'; // Backup dictionary: French-English
 
 class Dictionary {
   constructor() {
@@ -87,7 +88,7 @@ class Dictionary {
    * Load backup English dictionary index for fallback lookups
    */
   async loadBackupIndex() {
-    const indexPath = chrome.runtime.getURL('data/fra-eng.idx');
+    const indexPath = chrome.runtime.getURL(`data/${BACKUP_DICTIONARY_FILE}.idx`);
 
     try {
       const response = await fetch(indexPath);
@@ -431,7 +432,7 @@ class Dictionary {
    */
   async fetchEntry(offset, length, useBackup = false) {
     const u8Path = useBackup 
-      ? chrome.runtime.getURL('data/fra-eng.u8')
+      ? chrome.runtime.getURL(`data/${BACKUP_DICTIONARY_FILE}.u8`)
       : chrome.runtime.getURL(`data/fra-${this.currentLanguage}.u8`);
 
     try {
@@ -706,7 +707,8 @@ class Dictionary {
     this._debug('[Dict] Normalized word:', normalizedWord);
 
     // If we have following text, try to find multi-word expressions first
-    // (only for primary dictionary, not backup)
+    // Multi-word expressions are only checked in the primary dictionary, not backup,
+    // because the backup is used as a fallback and multi-word support is language-specific
     if (!useBackup && followingText && followingText.trim().length > 0) {
       const multiWordResult = await this.lookupMultiWord(normalizedWord, followingText);
       if (multiWordResult) {
