@@ -508,40 +508,11 @@ async function showPopup(word, followingText, x, y) {
   
   // Add warning message if showing English backup results
   if (isBackupResult) {
-    const languageNames = {
-      'ita': 'Italian',
-      'spa': 'Spanish',
-      'deu': 'German',
-      'nld': 'Dutch',
-      'por': 'Portuguese',
-      'rus': 'Russian',
-      'cat': 'Catalan',
-      'pol': 'Polish',
-      'swe': 'Swedish',
-      'ces': 'Czech',
-      'fin': 'Finnish',
-      'jpn': 'Japanese',
-      'ell': 'Greek',
-      'dan': 'Danish',
-      'gle': 'Irish',
-      'lit': 'Lithuanian',
-      'tur': 'Turkish',
-      'zho': 'Chinese',
-      'lat': 'Latin',
-      'nor': 'Norwegian',
-      'bul': 'Bulgarian',
-      'ind': 'Indonesian'
-    };
-    // Find first backup entry to get the language name
-    const backupEntry = entries.find(e => e.isBackup);
-    if (backupEntry && backupEntry.backupLanguage) {
-      const languageName = languageNames[backupEntry.backupLanguage] || backupEntry.backupLanguage;
-      popupHTML += `
-        <div class="french-popup-backup-warning">
-          ⚠️ Word not found in ${languageName} dictionary, showing English definition
-        </div>
-      `;
-    }
+    popupHTML += `
+      <div class="french-popup-backup-warning">
+        ⚠️ Word not found, showing English definition
+      </div>
+    `;
   }
 
   // If we have a conjugation, show it first
